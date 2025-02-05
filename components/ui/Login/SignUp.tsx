@@ -6,9 +6,9 @@ export default function SignUp() {
     return (
         <View style={styles.container}>
             <Text style={styles.text}>
-                If you don’t have an account, please sign up{" "}
+                Don’t have an account?{" "}
                 <TouchableOpacity onPress={createAccount}>
-                    <Text style={styles.linkText}>here</Text>
+                    <Text style={styles.linkText}>Sign up</Text>
                 </TouchableOpacity>
                 .
             </Text>
@@ -23,7 +23,7 @@ const styles = StyleSheet.create({
     },
     text: {
         fontSize: 14,
-        color: "#000",
+        color: "white",
         flexWrap: "wrap",
     },
     linkText: {

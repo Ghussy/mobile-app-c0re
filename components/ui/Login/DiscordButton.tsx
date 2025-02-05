@@ -24,7 +24,9 @@ const styles = StyleSheet.create({
         borderColor: "black",
         backgroundColor: "#5865F2",
         flexDirection: "row",
-        alignItems: "center"
+        alignItems: "center",
+        opacity: .9,
+
     },
     text: {
         fontSize: 25,

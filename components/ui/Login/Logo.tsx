@@ -2,16 +2,24 @@ import { StyleSheet, Text, View } from 'react-native';
 
 export default function HomeScreen() {
   return (
-    <View>
-        <Text style={style.text}>
-            LOGO
+    <View style={styles.textHolder}>
+        <Text style={styles.text}>
+            Login to
+        </Text>
+        <Text style={styles.text}>
+            Your Account
         </Text>
     </View>
   );
 }
 
-const style = StyleSheet.create({
+const styles = StyleSheet.create({
     text: {
-        fontSize: 100
+        fontSize: 50
+    },
+    textHolder: {
+      marginTop: 20,
+      justifyContent: 'center',
+      alignItems: 'center'
     }
 })
