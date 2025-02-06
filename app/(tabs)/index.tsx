@@ -25,40 +25,6 @@ export default function HomeScreen() {
       style={styles.backgroundContainer}
     >
       <Logo />
-      <View style={styles.formContainer}>
-        <View>
-          <Text style={styles.infoText}>Enter your login information</Text>
-        </View>
-        <View>
-          <View style={styles.inputHolder}>
-            <Image
-              source={require("../../../mobile-app-c0re/assets/images/mail.png")}
-              style={styles.image}
-            />
-            <TextInput
-              placeholder="Email"
-              style={styles.inputContainer}
-            ></TextInput>
-          </View>
-
-          <View style={styles.inputHolder}>
-            <Image
-              source={require("../../../mobile-app-c0re/assets/images/padlock.png")}
-              style={styles.image}
-            />
-            <TextInput
-              placeholder="Password"
-              style={styles.inputContainer}
-            ></TextInput>
-          </View>
-        </View>
-        <View style={styles.buttonsLayout}>
-          <Button title="login" onClick={signIn}></Button>
-          <Text style={styles.infoText}>Or</Text>
-          <DiscordButton />
-          <SignUp />
-        </View>
-      </View>
     </ImageBackground>
   );
 }
