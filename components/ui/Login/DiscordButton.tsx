@@ -1,6 +1,7 @@
 import React, { useState } from "react";
 import { View, TouchableOpacity, Text, Image, StyleSheet } from "react-native";
 import axios from "axios";
+import * as WebBrowser from "expo-web-browser";
 // Q-JhQCzVFX32YdesGEtVo6xsHeUaMAh7
 
 const Button = () => {
@@ -10,9 +11,14 @@ const Button = () => {
   const signIn = async () => {
     try {
       const response = await axios.get("http://10.0.2.2:5000/login");
-      console.log(response.data.auth_url);
+      const result = await WebBrowser.openAuthSessionAsync(
+        response.data.authUrl
+      );
+      if (result.type === "dismiss") {
+        console.log("check");
+      }
     } catch (error) {
-      console.error("Error fetching data:", error); // Log any errors
+      console.error("Error fetching data:", error);
     }
   };
 
