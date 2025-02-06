@@ -11,6 +11,7 @@ const Button = () => {
   const signIn = async () => {
     try {
       const response = await axios.get("http://10.0.2.2:5000/login");
+      console.log(response);
       const result = await WebBrowser.openAuthSessionAsync(
         response.data.authUrl
       );
@@ -43,7 +44,6 @@ const styles = StyleSheet.create({
     backgroundColor: "#5865F2",
     flexDirection: "row",
     alignItems: "center",
-    opacity: 0.9,
   },
   text: {
     fontSize: 25,

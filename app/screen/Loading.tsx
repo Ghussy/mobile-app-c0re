@@ -15,7 +15,6 @@ import DiscordButton from "@/components/ui/Login/DiscordButton";
 import SignUp from "@/components/ui/Login/SignUp";
 const { width } = Dimensions.get("window");
 
-
 export default function HomeScreen() {
   return (
     <ImageBackground
@@ -23,9 +22,6 @@ export default function HomeScreen() {
       style={styles.backgroundContainer}
     >
       <Logo />
-      <View style={styles.buttonsLayout}>
-        <DiscordButton />
-      </View>
     </ImageBackground>
   );
 }
