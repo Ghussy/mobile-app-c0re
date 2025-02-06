@@ -8,8 +8,6 @@ import {
   Text,
   TouchableOpacity,
 } from "react-native";
-import Button from "../../components/ui/Login/Button";
-import Discord from "../../components/ui/Login/DiscordButton";
 
 const { width, height } = Dimensions.get("window");
 
@@ -24,6 +22,16 @@ export default function HomeScreen() {
             source={require("../../assets/images/cross-flare.png")}
             style={styles.image}
           />
+          <View style={styles.logoHolder}>
+            <Image
+              source={require("../../assets/images/logo.png")}
+              style={styles.logo}
+            />
+            <Image
+              source={require("../../assets/images/c0re-lego.png")}
+              style={styles.text}
+            />
+          </View>
         </View>
         <View style={styles.formContainer}>
           <Text style={styles.loginText}>Login</Text>
@@ -47,6 +55,10 @@ export default function HomeScreen() {
           </View>
 
           <TouchableOpacity style={styles.discordButton}>
+            <Image
+              source={require("../../assets/images/discord.png")}
+              style={styles.imaged}
+            />
             <Text style={styles.textButton}>Login with Discord</Text>
           </TouchableOpacity>
           <Image
@@ -73,20 +85,19 @@ const styles = StyleSheet.create({
     width: "100%",
     alignItems: "center",
     justifyContent: "center",
-    maxHeight: height * 0.4, // Ensures image container doesn't exceed 40% of the screen
+    maxHeight: height * 0.4,
   },
   image: {
-    width: width * 0.6, // Keeps image responsive
-    height: "100%", // Makes sure it fits its container
-    maxHeight: 200, // Prevents it from getting too big
-    resizeMode: "contain",
+    width: "110%",
+    height: "110%",
+    transform: [{ rotate: "5deg" }, { translateY: -40 }],
   },
   formContainer: {
     width: width,
     height: height * 0.5,
     backgroundColor: "#101012",
     alignItems: "center",
-    borderTopColor: "white",
+    borderTopColor: "#212123",
     borderTopWidth: 3,
     paddingVertical: 30,
     paddingHorizontal: 40,
@@ -99,7 +110,7 @@ const styles = StyleSheet.create({
     color: "white",
   },
   signInButton: {
-    backgroundColor: "gray",
+    backgroundColor: "#27272a",
     borderRadius: 5,
     width: "100%",
     justifyContent: "center",
@@ -121,9 +132,30 @@ const styles = StyleSheet.create({
     width: "100%",
     justifyContent: "center",
     marginTop: 40,
+    flexDirection: "row",
+    alignItems: "center",
   },
   bottomFlare: {
     position: "absolute",
-    zIndex: 0,
+    zIndex: 3,
+  },
+  imaged: {
+    height: 40,
+    width: 57,
+    marginRight: 10,
+  },
+  logoHolder: {
+    marginTop: 20,
+    justifyContent: "center",
+    alignItems: "center",
+    transform: [{ translateY: -20 }],
+    position: "absolute",
+  },
+  logo: {
+    height: 125,
+    width: 125,
+  },
+  text: {
+    marginTop: 15,
   },
 });
