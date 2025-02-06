@@ -8,15 +8,13 @@ import {
   Text,
   Dimensions,
 } from "react-native";
+
 import Logo from "@/components/ui/Login/Logo";
 import Button from "@/components/ui/Login/Button";
 import DiscordButton from "@/components/ui/Login/DiscordButton";
 import SignUp from "@/components/ui/Login/SignUp";
 const { width } = Dimensions.get("window");
 
-function signIn() {}
-
-function signInDiscord() {}
 
 export default function HomeScreen() {
   return (
@@ -25,6 +23,9 @@ export default function HomeScreen() {
       style={styles.backgroundContainer}
     >
       <Logo />
+      <View style={styles.buttonsLayout}>
+        <DiscordButton />
+      </View>
     </ImageBackground>
   );
 }
@@ -37,36 +38,7 @@ const styles = StyleSheet.create({
     justifyContent: "center",
     alignItems: "center",
   },
-  formContainer: {
-    backgroundColor: "black",
-    flex: 1,
-    opacity: 0.7,
-    width: width,
-    justifyContent: "center",
-    alignItems: "center",
-  },
   buttonsLayout: {
     marginTop: 59,
-  },
-  inputContainer: {
-    paddingLeft: 10,
-    marginVertical: 10,
-  },
-  inputHolder: {
-    flexDirection: "row",
-    backgroundColor: "white",
-    opacity: 0.3,
-    borderRadius: 3,
-    fontSize: 15,
-    alignContent: "center",
-    marginVertical: 10,
-  },
-  image: {
-    height: 40,
-    width: 40,
-  },
-  infoText: {
-    color: "white",
-    fontSize: 13,
   },
 });
