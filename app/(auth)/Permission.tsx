@@ -17,11 +17,6 @@ export default function HomeScreen() {
   const [SensorEnabled, setSensorEnabled] = useState(false);
   const [LocationEnabled, setLocationEnabled] = useState(false);
 
-  const toggleSensor = () =>
-    setSensorEnabled((previousState) => !previousState);
-  const toggleLocation = () =>
-    setLocationEnabled((previousState) => !previousState);
-
   return (
     <SafeAreaView style={styles.container}>
       <View style={styles.backgroundWrapper}>
@@ -45,11 +40,9 @@ export default function HomeScreen() {
                 battery power.
               </Text>
             </View>
-            <Switch
-              trackColor={{ false: "#27272A", true: "#FAFAFA" }}
-              thumbColor={"black"}
-              onValueChange={toggleSensor}
-              value={SensorEnabled}
+            <DarkSwitch
+              isOn={SensorEnabled}
+              onToggle={() => setSensorEnabled(!SensorEnabled)}
             />
           </View>
 
@@ -67,11 +60,9 @@ export default function HomeScreen() {
                 Location access lets us log activities for you automatically.
               </Text>
             </View>
-            <Switch
-              trackColor={{ false: "#27272A", true: "#FAFAFA" }}
-              thumbColor={"black"}
-              onValueChange={toggleLocation}
-              value={LocationEnabled}
+            <DarkSwitch
+              isOn={LocationEnabled}
+              onToggle={() => setLocationEnabled(!LocationEnabled)}
             />
           </View>
 
