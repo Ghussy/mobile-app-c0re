@@ -10,8 +10,9 @@ import { StatusBar } from "expo-status-bar";
 import { useEffect } from "react";
 import "react-native-reanimated";
 import { fetch } from "expo/fetch";
+import LoginScreen from "./screen/Login";
 
-import { useColorScheme } from "@/hooks/useColorScheme";
+import { createBottomTabNavigator } from "@react-navigation/bottom-tabs";
 
 import BackgroundGeolocation from "react-native-background-geolocation";
 
@@ -71,7 +72,7 @@ BackgroundGeolocation.ready({
 SplashScreen.preventAutoHideAsync();
 
 export default function RootLayout() {
-  const colorScheme = useColorScheme();
+  const Tab = createBottomTabNavigator();
   const [loaded] = useFonts({
     SpaceMono: require("../assets/fonts/SpaceMono-Regular.ttf"),
   });
@@ -87,11 +88,18 @@ export default function RootLayout() {
   }
 
   return (
-    <ThemeProvider value={colorScheme === "dark" ? DarkTheme : DefaultTheme}>
-      <Stack>
-        <Stack.Screen name="(tabs)" options={{ headerShown: false }} />
-        <Stack.Screen name="+not-found" />
-      </Stack>
+    <ThemeProvider value={DefaultTheme}>
+      <Tab.Navigator
+        screenOptions={{
+          tabBarStyle: { display: "none" }, // Hide the tab bar completely
+        }}
+      >
+        <Tab.Screen
+          name="Login"
+          component={LoginScreen}
+          options={{ headerShown: false }}
+        />
+      </Tab.Navigator>
       <StatusBar style="auto" />
     </ThemeProvider>
   );
