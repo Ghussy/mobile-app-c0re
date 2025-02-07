@@ -8,12 +8,15 @@ import {
   Text,
   TouchableOpacity,
 } from "react-native";
+import { useRouter } from "expo-router";
 
 const { width, height } = Dimensions.get("window");
 
 function signIn() {}
 
 export default function HomeScreen() {
+  const router = useRouter();
+
   return (
     <SafeAreaView style={styles.container}>
       <View style={styles.backgroundWrapper}>
@@ -33,10 +36,18 @@ export default function HomeScreen() {
             />
           </View>
         </View>
-        <View style={styles.authContainer}>
+        <View 
+          style={styles.authContainer}
+        >
           <Text style={styles.loginTitle}>Login</Text>
-          <TouchableOpacity style={styles.createAccountButton}>
-            <Text style={styles.createAccountText}>Create account</Text>
+          <TouchableOpacity 
+            style={[styles.createAccountButton, { zIndex: 1 }]}
+            onPress={() => {
+              console.log('Create account pressed');
+              router.push("/(auth)/permissions");
+            }}
+          >
+            <Text style={styles.createAccountText}>skip</Text>
           </TouchableOpacity>
           <View style={styles.separatorContainer}>
             <Image
@@ -49,7 +60,9 @@ export default function HomeScreen() {
               style={styles.separator}
             />
           </View>
-          <TouchableOpacity style={styles.discordLoginButton}>
+          <TouchableOpacity 
+            style={[styles.discordLoginButton, { zIndex: 1 }]}
+          >
             <Image
               source={require("../../assets/images/discord.png")}
               style={styles.discordIcon}
@@ -58,7 +71,7 @@ export default function HomeScreen() {
           </TouchableOpacity>
           <Image
             source={require("../../assets/images/bottom-flare.png")}
-            style={styles.bottomFlare}
+            style={[styles.bottomFlare, { zIndex: 0 }]}
           />
         </View>
       </View>
