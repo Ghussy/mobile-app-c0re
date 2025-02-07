@@ -1,4 +1,5 @@
-import React from "react";
+import React, { useState } from "react";
+import DarkSwitch from "@/components/ui/permission/DarkSwitch";
 import {
   View,
   Image,
@@ -7,13 +8,20 @@ import {
   SafeAreaView,
   Text,
   TouchableOpacity,
+  Switch,
 } from "react-native";
 
 const { width, height } = Dimensions.get("window");
 
-function signIn() {}
-
 export default function HomeScreen() {
+  const [SensorEnabled, setSensorEnabled] = useState(false);
+  const [LocationEnabled, setLocationEnabled] = useState(false);
+
+  const toggleSensor = () =>
+    setSensorEnabled((previousState) => !previousState);
+  const toggleLocation = () =>
+    setLocationEnabled((previousState) => !previousState);
+
   return (
     <SafeAreaView style={styles.container}>
       <View style={styles.backgroundWrapper}>
@@ -21,42 +29,72 @@ export default function HomeScreen() {
           <Text style={styles.titleText}>
             c0re requires these{"\n"} permissions to work
           </Text>
+
+          {/* Motion Sensors Permission */}
           <View style={styles.tabContainer}>
-            <Image
-              source={require("../../assets/images/sensor.png")}
-              style={styles.iconImge}
-            />
-            <Text>
-              Motion Sensors{"\n"}
-              We use motion sensors to optimize tracking accuracy and save
-              battery power.
-            </Text>
-            <Image
-              source={require("../../assets/images/switch.png")}
-              style={styles.iconImge}
+            <View style={styles.imageContainer}>
+              <Image
+                source={require("../../assets/images/sensor.png")}
+                style={styles.iconImage}
+              />
+            </View>
+            <View style={{ flex: 1 }}>
+              <Text style={styles.tabText}>Motion Sensors</Text>
+              <Text style={[styles.tabText, { color: "#A1A1AA" }]}>
+                We use motion sensors to optimize tracking accuracy and save
+                battery power.
+              </Text>
+            </View>
+            <Switch
+              trackColor={{ false: "#27272A", true: "#FAFAFA" }}
+              thumbColor={"black"}
+              onValueChange={toggleSensor}
+              value={SensorEnabled}
             />
           </View>
+
+          {/* Location Permission */}
           <View style={styles.tabContainer}>
-            <Image
-              source={require("../../assets/images/location.png")}
-              style={styles.iconImge}
-            />
-            <Text>
-              Location{"\n"}
-              Location access lets us log activities for you automatically.
-            </Text>
-            <Image
-              source={require("../../assets/images/switch.png")}
-              style={styles.iconImge}
+            <View style={styles.imageContainer}>
+              <Image
+                source={require("../../assets/images/location.png")}
+                style={styles.iconImage}
+              />
+            </View>
+            <View style={{ flex: 1 }}>
+              <Text style={styles.tabText}>Location</Text>
+              <Text style={[styles.tabText, { color: "#A1A1AA" }]}>
+                Location access lets us log activities for you automatically.
+              </Text>
+            </View>
+            <Switch
+              trackColor={{ false: "#27272A", true: "#FAFAFA" }}
+              thumbColor={"black"}
+              onValueChange={toggleLocation}
+              value={LocationEnabled}
             />
           </View>
-          <Text>
-            Your location data never leaves your device.{"\n"}Only you can
-            access it
-          </Text>
-          <TouchableOpacity style={styles.createAccountButton}>
+
+          {/* Bottom Information */}
+          <View style={styles.bottomTextContainer}>
+            <Text style={styles.bottomText}>
+              Your location data never leaves your device.{"\n"}Only you can
+              access it.
+            </Text>
+          </View>
+
+          {/* Continue Button */}
+          <TouchableOpacity
+            style={[
+              SensorEnabled && LocationEnabled
+                ? styles.createAccountButtonEnable
+                : styles.createAccountButtonDisable,
+            ]}
+          >
             <Text style={styles.createAccountText}>Continue</Text>
           </TouchableOpacity>
+
+          {/* Background Flare */}
           <Image
             source={require("../../assets/images/bottom-flare.png")}
             style={styles.bottomFlare}
@@ -91,19 +129,39 @@ const styles = StyleSheet.create({
   titleText: {
     fontSize: 30,
     color: "white",
+    marginBottom: height * 0.05,
+    textAlign: "center",
+  },
+  bottomTextContainer: {
+    marginTop: height * 0.15,
+    marginBottom: height * 0.02,
+    justifyContent: "center",
+    alignContent: "center",
   },
   tabContainer: {
-    borderRadius: 2,
+    borderRadius: 9,
     borderWidth: 2,
     borderColor: "#212123",
     flexDirection: "row",
+    alignItems: "center",
+    paddingHorizontal: width * 0.04,
+    paddingVertical: width * 0.05,
+    marginVertical: height * 0.023,
   },
-  iconImge: {
-    width: 50,
-    height: 50,
+  iconImage: {
+    width: width * 0.06,
+    height: height * 0.03,
+    marginRight: width * 0.04,
   },
-  createAccountButton: {
+  createAccountButtonDisable: {
     backgroundColor: "#27272a",
+    borderRadius: 5,
+    width: "100%",
+    justifyContent: "center",
+    marginBottom: height * 0.04,
+  },
+  createAccountButtonEnable: {
+    backgroundColor: "#636363",
     borderRadius: 5,
     width: "100%",
     justifyContent: "center",
@@ -115,11 +173,24 @@ const styles = StyleSheet.create({
     fontSize: height * 0.02,
     color: "white",
   },
+  imageContainer: {
+    justifyContent: "center",
+    alignContent: "center",
+  },
   bottomFlare: {
     position: "absolute",
     zIndex: 3,
     width: "150%",
     height: height * 0.4,
     bottom: 0,
+  },
+  tabText: {
+    fontSize: 15,
+    color: "white",
+  },
+  bottomText: {
+    fontSize: 16,
+    color: "#A1A1AA",
+    textAlign: "center",
   },
 });
