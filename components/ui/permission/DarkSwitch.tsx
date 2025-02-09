@@ -1,11 +1,5 @@
-import React, { useState, useRef } from "react";
-import {
-  View,
-  Pressable,
-  Animated,
-  StyleSheet,
-  Dimensions,
-} from "react-native";
+import React, { useRef } from "react";
+import { Pressable, Animated, StyleSheet, Dimensions } from "react-native";
 const { width, height } = Dimensions.get("window");
 
 type SwitchProps = {

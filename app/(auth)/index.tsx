@@ -25,9 +25,16 @@ export default function HomeScreen() {
         <Logo />
         <View style={styles.authContainer}>
           <Text style={styles.loginTitle}>Login</Text>
+          {/* Create Button  */}
           <CreateButton />
+
+          {/* Separate buttons  */}
           <Separator />
+
+          {/* Discord button */}
           <DiscordButton />
+
+          {/* Background Flare */}
           <Image
             source={require("@/assets/images/bottom-flare.png")}
             style={[styles.bottomFlare, { zIndex: 0 }]}

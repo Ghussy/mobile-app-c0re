@@ -14,10 +14,10 @@ const Button = () => {
   const signIn = async () => {
     try {
       const response = await axios.get("http://10.0.2.2:5000/login");
-      console.log(response);
       const result = await WebBrowser.openAuthSessionAsync(
         response.data.authUrl
       );
+      console.log(result);
       if (result.type === "dismiss") {
         console.log("check");
       }
