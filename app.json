@@ -61,7 +61,8 @@
           "googlePlayServicesLocationVersion": "21.1.0",
           "appCompatVersion": "1.4.2"
         }
-      ]
+      ],
+      "expo-sqlite"
     ],
     "experiments": {
       "typedRoutes": true
