@@ -24,14 +24,16 @@ export default function HomeScreen() {
       <View style={styles.backgroundWrapper}>
         <Logo />
         <View style={styles.authContainer}>
+          {/* Login Sign */}
           <Text style={styles.loginTitle}>Login</Text>
+
           {/* Create Button  */}
           <CreateButton />
 
-          {/* Separate buttons  */}
+          {/* Separate Buttons  */}
           <Separator />
 
-          {/* Discord button */}
+          {/* Discord Button */}
           <DiscordButton />
 
           {/* Background Flare */}
