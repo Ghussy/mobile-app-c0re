@@ -1,8 +1,8 @@
-import { useEffect } from 'react';
+import { useEffect } from "react";
+
 import BackgroundGeolocation from "react-native-background-geolocation";
 
-const DISCORD_WEBHOOK_URL = "https://discord.com/api/webhooks/1326401299289473116/tMji7ZF64F-qZhfHctvXsinLnYYf-y3mbhAVYiDA_bf3vje8H015UEWc_iSOm5ur3lK5";
-const SEND_TO_DISCORD = false;  // Toggle this to control Discord messages
+import { logLocation } from "@/lib/sqlite";
 
 export function LocationReporter() {
   useEffect(() => {
@@ -14,49 +14,18 @@ export function LocationReporter() {
       BackgroundGeolocation.start();
       BackgroundGeolocation.registerHeadlessTask(async (event) => {
         try {
-          const location = await BackgroundGeolocation.getCurrentPosition({
+          const { coords } = await BackgroundGeolocation.getCurrentPosition({
             persist: false,
           });
-          console.log("location:", location);
-          
-          if (SEND_TO_DISCORD) {
-            const coords = location.coords;
-            const message = `(while the app is closed) Richard is at ${coords.latitude}, ${coords.longitude}, travelling at ${coords.speed} m/s`;
-            fetch(DISCORD_WEBHOOK_URL, {
-              method: "POST",
-              body: JSON.stringify({
-                content: message,
-              }),
-              headers: {
-                "Content-Type": "application/json",
-              },
-            })
-              .catch(console.error)
-              .then(console.log);
-          }
+          await logLocation(coords.latitude, coords.longitude, coords.speed);
         } catch (error) {
           console.error("Error fetching location:", error);
         }
       });
-      
-      BackgroundGeolocation.onLocation((location) => {
-        //console.log("location:", location);
-        
-        if (SEND_TO_DISCORD) {
-          const coords = location.coords;
-          const message = `Richard is at ${coords.latitude}, ${coords.longitude}, travelling at ${coords.speed} m/s`;
-          fetch(DISCORD_WEBHOOK_URL, {
-            method: "POST",
-            body: JSON.stringify({
-              content: message,
-            }),
-            headers: {
-              "Content-Type": "application/json",
-            },
-          })
-            .catch(console.error)
-            .then(console.log);
-        }
+
+      BackgroundGeolocation.onLocation(async (location) => {
+        const { coords } = location;
+        await logLocation(coords.latitude, coords.longitude, coords.speed);
       });
     });
   }, []);
