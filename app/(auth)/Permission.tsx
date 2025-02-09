@@ -17,6 +17,13 @@ export default function HomeScreen() {
   const [SensorEnabled, setSensorEnabled] = useState(false);
   const [LocationEnabled, setLocationEnabled] = useState(false);
 
+  const Continue = () => {
+    console.error("sdf");
+
+    if (SensorEnabled && LocationEnabled) {
+    }
+  };
+
   return (
     <SafeAreaView style={styles.container}>
       <View style={styles.backgroundWrapper}>
@@ -76,11 +83,12 @@ export default function HomeScreen() {
 
           {/* Continue Button */}
           <TouchableOpacity
-            style={[
+            style={
               SensorEnabled && LocationEnabled
                 ? styles.createAccountButtonEnable
-                : styles.createAccountButtonDisable,
-            ]}
+                : styles.createAccountButtonDisable
+            }
+            onPress={Continue}
           >
             <Text style={styles.createAccountText}>Continue</Text>
           </TouchableOpacity>
