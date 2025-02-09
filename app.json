@@ -10,7 +10,22 @@
     "newArchEnabled": true,
     "ios": {
       "supportsTablet": true,
-      "bundleIdentifier": "com.anonymous.app"
+      "bundleIdentifier": "com.anonymous.app",
+      "infoPlist": {
+        "NSLocationAlwaysAndWhenInUseUsageDescription": "This app requires location in the background 🦍",
+        "NSLocationWhenInUseUsageDescription": "This app requires location while in use 🦍",
+        "NSMotionUsageDescription": "This app uses motion-detection to determine the motion-activity of the device (walking, vehicle, bicycle, etc) 🦍",
+        "UIBackgroundModes": [
+          "location",
+          "fetch",
+          "processing",
+          "audio"
+        ],
+        "BGTaskSchedulerPermittedIdentifiers": [
+          "com.transistorsoft.fetch",
+          "com.transistorsoft.customtask"
+        ]
+      }
     },
     "android": {
       "adaptiveIcon": {
@@ -35,7 +50,10 @@
           "backgroundColor": "#ffffff"
         }
       ],
-      ["react-native-background-geolocation", {}],
+      [
+        "react-native-background-geolocation",
+        {}
+      ],
       "react-native-background-fetch",
       [
         "expo-gradle-ext-vars",
