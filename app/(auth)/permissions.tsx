@@ -17,6 +17,13 @@ export default function PermissionsScreen() {
       >
         <Text style={styles.buttonText}>Continue</Text>
       </TouchableOpacity>
+
+      <TouchableOpacity
+        style={styles.button}
+        onPress={() => router.replace("/(tabs)/history")}
+      >
+        <Text style={styles.buttonText}>History</Text>
+      </TouchableOpacity>
     </View>
   );
 }
