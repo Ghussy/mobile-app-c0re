@@ -44,8 +44,8 @@ const styles = StyleSheet.create({
     backgroundColor: "#FAFAFA",
   },
   switchThumb: {
-    width: 20,
-    height: 20,
+    width: width * 0.046,
+    height: height * 0.026,
     borderRadius: 10,
     backgroundColor: "#000",
   },
