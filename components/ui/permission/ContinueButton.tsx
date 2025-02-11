@@ -1,5 +1,6 @@
 import { StyleSheet, Dimensions, TouchableOpacity, Text } from "react-native";
 const { height } = Dimensions.get("window");
+import { useRouter } from "expo-router";
 
 type ContinueProp = {
   locationCheck: boolean;
@@ -7,9 +8,11 @@ type ContinueProp = {
 };
 
 const Continue = ({ locationCheck, sensorCheck }: ContinueProp) => {
+    const router = useRouter();
   const userPress = () => {
     if (locationCheck && sensorCheck) {
-      console.log("see");
+      console.log("Access All");
+      router.push("/(tabs)/leaderboard");
     }
   };
 

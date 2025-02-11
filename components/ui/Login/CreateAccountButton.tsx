@@ -1,12 +1,18 @@
 import { TouchableOpacity, Text, StyleSheet, Dimensions } from "react-native";
+import { useRouter } from "expo-router";
 
 const { width, height } = Dimensions.get("window");
 
 const Button = () => {
-  const signIn = async () => {};
-
+  const router = useRouter();
   return (
-    <TouchableOpacity style={styles.createAccountButton} onPress={signIn}>
+    <TouchableOpacity
+      style={styles.createAccountButton}
+      onPress={() => {
+        console.log("Create account pressed");
+        router.push("/(auth)/Permission");
+      }}
+    >
       <Text style={styles.createAccountText}>Create account</Text>
     </TouchableOpacity>
   );
