@@ -1,20 +1,21 @@
-import React, { useState } from "react";
-import { View, TouchableOpacity, Text, Image, StyleSheet } from "react-native";
+import React from "react";
+import {
+  TouchableOpacity,
+  Text,
+  Image,
+  StyleSheet,
+} from "react-native";
 import axios from "axios";
 import * as WebBrowser from "expo-web-browser";
-// Q-JhQCzVFX32YdesGEtVo6xsHeUaMAh7
 
 const Button = () => {
-  const [message, setMessage] = useState(""); // State to store the message
-
-  // Async function to handle the API call
   const signIn = async () => {
     try {
       const response = await axios.get("http://10.0.2.2:5000/login");
-      console.log(response);
       const result = await WebBrowser.openAuthSessionAsync(
         response.data.authUrl
       );
+      console.log(result);
       if (result.type === "dismiss") {
         console.log("check");
       }
@@ -24,36 +25,35 @@ const Button = () => {
   };
 
   return (
-    <View>
-      <TouchableOpacity style={styles.button} onPress={signIn}>
-        <Image
-          source={require("../../../assets/images/discord-white-icon.webp")}
-          style={styles.image}
-        />
-        <Text style={styles.text}>Sign In with Discord</Text>
-      </TouchableOpacity>
-    </View>
+    <TouchableOpacity style={styles.discordLoginButton} onPress={signIn}>
+      <Image
+        source={require("@/assets/images/discord.png")}
+        style={styles.discordIcon}
+      />
+      <Text style={styles.discordLoginText}>Login with Discord</Text>
+    </TouchableOpacity>
   );
 };
 
 const styles = StyleSheet.create({
-  button: {
-    borderRadius: 15,
-    borderWidth: 4,
-    borderColor: "black",
-    backgroundColor: "#5865F2",
+  discordLoginButton: {
+    backgroundColor: "white",
+    borderRadius: 5,
+    width: "100%",
+    justifyContent: "center",
+    marginTop: 30,
     flexDirection: "row",
     alignItems: "center",
+    paddingVertical: 17,
   },
-  text: {
-    fontSize: 25,
-    color: "white",
-    marginHorizontal: 10,
+  discordIcon: {
+    height: 29,
+    width: 40,
+    marginRight: 14,
   },
-  image: {
-    height: 50,
-    width: 60,
-    marginLeft: 5,
+  discordLoginText: {
+    fontSize: 15,
+    color: "black",
   },
 });
 
