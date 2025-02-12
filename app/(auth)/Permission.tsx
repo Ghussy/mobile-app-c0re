@@ -9,11 +9,8 @@ import {
   View,
   Image,
   StyleSheet,
-  Dimensions,
   SafeAreaView,
 } from "react-native";
-
-const { width, height } = Dimensions.get("window");
 
 export default function HomeScreen() {
   const [SensorEnabled, setSensorEnabled] = useState(false);
@@ -72,16 +69,16 @@ const styles = StyleSheet.create({
     alignItems: "center",
     borderTopColor: "#212123",
     borderTopWidth: 3,
-    height: height * 0.85,
-    paddingVertical: height * 0.03,
-    paddingHorizontal: width * 0.1,
+    height: 750,
+    paddingVertical: 30,
+    paddingHorizontal: 20,
     bottom: 0,
   },
   bottomFlare: {
     position: "absolute",
     zIndex: 3,
     width: "150%",
-    height: height * 0.4,
+    height: 340,
     bottom: 0,
   },
 });

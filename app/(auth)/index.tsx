@@ -3,13 +3,11 @@ import {
   View,
   Image,
   StyleSheet,
-  Dimensions,
   SafeAreaView,
   Text,
 } from "react-native";
 import { useRouter } from "expo-router";
 
-const { width, height } = Dimensions.get("window");
 import DiscordButton from "@/components/ui/Login/DiscordButton";
 import CreateButton from "@/components/ui/Login/CreateAccountButton";
 import Logo from "@/components/ui/Login/Logo";
@@ -59,25 +57,25 @@ const styles = StyleSheet.create({
   },
   authContainer: {
     width: "100%",
-    height: height * 0.5,
+    height: 470,
     backgroundColor: "#101012",
     alignItems: "center",
     borderTopColor: "#212123",
     borderTopWidth: 3,
-    paddingVertical: height * 0.03,
-    paddingHorizontal: width * 0.1,
+    paddingVertical: 50,
+    paddingHorizontal: 25,
     position: "relative",
   },
   loginTitle: {
-    fontSize: height * 0.045,
-    marginBottom: height * 0.03,
+    fontSize: 40,
+    marginBottom: 25,
     color: "white",
   },
   bottomFlare: {
     position: "absolute",
     zIndex: 3,
     width: "150%",
-    height: height * 0.4,
+    height: 340,
     bottom: 0,
   },
 });
