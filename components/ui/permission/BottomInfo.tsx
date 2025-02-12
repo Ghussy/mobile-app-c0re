@@ -1,5 +1,4 @@
-import { StyleSheet, Dimensions, View, Text } from "react-native";
-const { height } = Dimensions.get("window");
+import { StyleSheet, View, Text } from "react-native";
 
 export default function BottomInfo() {
   return (
@@ -14,8 +13,8 @@ export default function BottomInfo() {
 
 const styles = StyleSheet.create({
   bottomTextContainer: {
-    marginTop: height * 0.15,
-    marginBottom: height * 0.02,
+    marginTop: 40,
+    marginBottom: 15,
     justifyContent: "center",
     alignContent: "center",
   },

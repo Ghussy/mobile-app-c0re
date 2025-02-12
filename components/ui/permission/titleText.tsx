@@ -1,6 +1,4 @@
-import { StyleSheet, Dimensions, Text } from "react-native";
-const { height } = Dimensions.get("window");
-
+import { StyleSheet, Text } from "react-native";
 export default function TitleText() {
   return (
     <Text style={styles.titleText}>
@@ -12,7 +10,7 @@ const styles = StyleSheet.create({
   titleText: {
     fontSize: 30,
     color: "white",
-    marginBottom: height * 0.05,
+    marginBottom: 30,
     textAlign: "center",
   },
 });

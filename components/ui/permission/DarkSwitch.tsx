@@ -1,6 +1,5 @@
 import React, { useRef } from "react";
-import { Pressable, Animated, StyleSheet, Dimensions } from "react-native";
-const { width, height } = Dimensions.get("window");
+import { Pressable, Animated, StyleSheet } from "react-native";
 
 type SwitchProps = {
   isOn: boolean;
@@ -33,8 +32,8 @@ const Switch = ({ isOn, onToggle }: SwitchProps) => {
 
 const styles = StyleSheet.create({
   switchContainer: {
-    width: width * 0.11,
-    height: height * 0.03,
+    width: 47,
+    height: 25,
     borderRadius: 20,
     backgroundColor: "#1a1a1a",
     justifyContent: "center",
@@ -44,8 +43,8 @@ const styles = StyleSheet.create({
     backgroundColor: "#FAFAFA",
   },
   switchThumb: {
-    width: width * 0.046,
-    height: height * 0.026,
+    width: 20,
+    height: 21,
     borderRadius: 10,
     backgroundColor: "#000",
   },

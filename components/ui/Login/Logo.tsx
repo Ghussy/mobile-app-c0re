@@ -1,5 +1,4 @@
-import { StyleSheet, Dimensions, View, Image } from "react-native";
-const { height } = Dimensions.get("window");
+import { StyleSheet, View, Image } from "react-native";
 
 export default function HomeScreen() {
   return (
@@ -27,24 +26,24 @@ const styles = StyleSheet.create({
     width: "100%",
     alignItems: "center",
     justifyContent: "center",
-    maxHeight: height * 0.4,
+    maxHeight: 400,
   },
   backgroundImage: {
     width: "110%",
     height: "110%",
-    transform: [{ rotate: "5deg" }, { translateY: -height * 0.05 }],
+    transform: [{ rotate: "5deg" }, { translateY: -40 }],
   },
   logoContainer: {
     position: "absolute",
     justifyContent: "center",
     alignItems: "center",
-    transform: [{ translateY: -height * 0.02 }],
+    transform: [{ translateY: -10 }],
   },
   logo: {
-    height: height * 0.15,
-    width: height * 0.15,
+    height: 150,
+    width: 150,
   },
   logoText: {
-    marginTop: height * 0.02,
+    marginTop: 15,
   },
 });

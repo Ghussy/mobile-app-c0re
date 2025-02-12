@@ -1,5 +1,4 @@
-import { View, Text, Image, StyleSheet, Dimensions } from "react-native";
-const { width, height } = Dimensions.get("window");
+import { View, Text, Image, StyleSheet } from "react-native";
 
 const Button = () => {
   return (
@@ -26,11 +25,11 @@ const styles = StyleSheet.create({
     flex: 1,
     height: 1,
     backgroundColor: "gray",
-    marginHorizontal: width * 0.02,
+    marginHorizontal: 5,
   },
   orText: {
     color: "white",
-    fontSize: height * 0.02,
+    fontSize: 15,
   },
 });
 

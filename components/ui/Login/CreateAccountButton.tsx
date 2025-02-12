@@ -1,7 +1,5 @@
-import { TouchableOpacity, Text, StyleSheet, Dimensions } from "react-native";
+import { TouchableOpacity, Text, StyleSheet } from "react-native";
 import { useRouter } from "expo-router";
-
-const { width, height } = Dimensions.get("window");
 
 const Button = () => {
   const router = useRouter();
@@ -24,12 +22,12 @@ const styles = StyleSheet.create({
     borderRadius: 5,
     width: "100%",
     justifyContent: "center",
-    marginBottom: height * 0.04,
+    marginBottom: 30,
   },
   createAccountText: {
     textAlign: "center",
-    paddingVertical: height * 0.02,
-    fontSize: height * 0.02,
+    paddingVertical: 17,
+    fontSize: 20,
     color: "white",
   },
 });

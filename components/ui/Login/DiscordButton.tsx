@@ -1,14 +1,12 @@
-import React, { useState } from "react";
+import React from "react";
 import {
   TouchableOpacity,
   Text,
   Image,
   StyleSheet,
-  Dimensions,
 } from "react-native";
 import axios from "axios";
 import * as WebBrowser from "expo-web-browser";
-const { width, height } = Dimensions.get("window");
 
 const Button = () => {
   const signIn = async () => {
@@ -43,18 +41,18 @@ const styles = StyleSheet.create({
     borderRadius: 5,
     width: "100%",
     justifyContent: "center",
-    marginTop: height * 0.04,
+    marginTop: 30,
     flexDirection: "row",
     alignItems: "center",
-    paddingVertical: height * 0.02,
+    paddingVertical: 17,
   },
   discordIcon: {
-    height: height * 0.035,
-    width: width * 0.1,
-    marginRight: width * 0.03,
+    height: 29,
+    width: 40,
+    marginRight: 14,
   },
   discordLoginText: {
-    fontSize: height * 0.02,
+    fontSize: 15,
     color: "black",
   },
 });

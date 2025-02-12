@@ -1,5 +1,4 @@
-import { StyleSheet, Dimensions, View, Image, Text } from "react-native";
-const { height, width } = Dimensions.get("window");
+import { StyleSheet, View, Image, Text } from "react-native";
 import DarkSwitch from "@/components/ui/permission/DarkSwitch";
 
 type TabProps = {
@@ -38,18 +37,18 @@ const styles = StyleSheet.create({
     borderColor: "#212123",
     flexDirection: "row",
     alignItems: "center",
-    paddingHorizontal: width * 0.04,
-    paddingVertical: width * 0.05,
-    marginVertical: height * 0.023,
+    paddingHorizontal: 20,
+    paddingVertical: 20,
+    marginVertical: 20,
   },
   imageContainer: {
     justifyContent: "center",
     alignContent: "center",
   },
   iconImage: {
-    width: width * 0.06,
-    height: height * 0.03,
-    marginRight: width * 0.04,
+    width: 26,
+    height: 25,
+    marginRight: 18,
   },
 });
 

@@ -1,5 +1,4 @@
-import { StyleSheet, Dimensions, TouchableOpacity, Text } from "react-native";
-const { height } = Dimensions.get("window");
+import { StyleSheet, TouchableOpacity, Text } from "react-native";
 import { useRouter } from "expo-router";
 
 type ContinueProp = {
@@ -36,19 +35,17 @@ const styles = StyleSheet.create({
     borderRadius: 5,
     width: "100%",
     justifyContent: "center",
-    marginBottom: height * 0.04,
   },
   createAccountButtonEnable: {
     backgroundColor: "#636363",
     borderRadius: 5,
     width: "100%",
     justifyContent: "center",
-    marginBottom: height * 0.04,
   },
   createAccountText: {
     textAlign: "center",
-    paddingVertical: height * 0.02,
-    fontSize: height * 0.02,
+    paddingVertical: 17,
+    fontSize: 18,
     color: "white",
   },
 });
