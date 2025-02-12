@@ -11,7 +11,7 @@ CREATE TABLE IF NOT EXISTS location_history (
   longitude REAL NOT NULL,
   speed REAL,
   timestamp DATETIME DEFAULT CURRENT_TIMESTAMP
-);`
+);`,
 );
 
 function nullIfUndefined<T>(t: T | undefined): T | null {
@@ -21,13 +21,13 @@ function nullIfUndefined<T>(t: T | undefined): T | null {
 export async function logLocation(
   latitude: number,
   longitude: number,
-  speed: number | undefined
+  speed: number | undefined,
 ) {
   await db.runAsync(
     "INSERT INTO location_history (latitude, longitude, speed) VALUES (?, ?, ?)",
     latitude,
     longitude,
-    nullIfUndefined(speed)
+    nullIfUndefined(speed),
   );
 }
 
@@ -41,6 +41,6 @@ export async function getRecentLocations(limit: number = 50): Promise<
 > {
   return db.getAllAsync(
     "SELECT * FROM location_history ORDER BY timestamp DESC LIMIT ?",
-    limit
+    limit,
   );
 }

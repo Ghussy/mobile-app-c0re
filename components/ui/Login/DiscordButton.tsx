@@ -1,10 +1,5 @@
 import React from "react";
-import {
-  TouchableOpacity,
-  Text,
-  Image,
-  StyleSheet,
-} from "react-native";
+import { TouchableOpacity, Text, Image, StyleSheet } from "react-native";
 import axios from "axios";
 import * as WebBrowser from "expo-web-browser";
 
@@ -13,7 +8,7 @@ const Button = () => {
     try {
       const response = await axios.get("http://10.0.2.2:5000/login");
       const result = await WebBrowser.openAuthSessionAsync(
-        response.data.authUrl
+        response.data.authUrl,
       );
       console.log(result);
       if (result.type === "dismiss") {

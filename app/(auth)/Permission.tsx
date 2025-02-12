@@ -13,7 +13,7 @@ export default function HomeScreen() {
   return (
     <SafeAreaView style={styles.container}>
       <View style={styles.backgroundWrapper}>
-        <View style={[styles.authContainer, {zIndex: 2}]}>
+        <View style={[styles.authContainer, { zIndex: 2 }]}>
           <TitleText />
 
           <Sensor
