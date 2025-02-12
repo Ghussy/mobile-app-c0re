@@ -1,6 +1,5 @@
 import React, { useState } from "react";
-import { View, Image, StyleSheet, SafeAreaView, Text, TextInput, KeyboardAvoidingView} from "react-native";
-import Button from "@/components/ui/Login/Button";
+import { View, Image, StyleSheet, SafeAreaView, Text, TextInput, KeyboardAvoidingView, TouchableOpacity} from "react-native";
 
 export default function HomeScreen() {
   const [name, setName] = useState("");
@@ -50,11 +49,9 @@ const styles = StyleSheet.create({
   },
   wrapper: {
     flex: 1,
-    position: "relative",
   },
   authSection: {
     width: "100%",
-    position: "absolute",
     backgroundColor: "#101012",
     alignItems: "center",
     borderTopColor: "#212123",
@@ -63,6 +60,7 @@ const styles = StyleSheet.create({
     paddingVertical: 30,
     paddingHorizontal: 20,
     bottom: 0,
+    marginTop: 120
   },
   backgroundFlare: {
     position: "absolute",
