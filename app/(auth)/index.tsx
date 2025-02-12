@@ -1,11 +1,5 @@
 import React from "react";
-import {
-  View,
-  Image,
-  StyleSheet,
-  SafeAreaView,
-  Text,
-} from "react-native";
+import { View, Image, StyleSheet, SafeAreaView, Text } from "react-native";
 import { useRouter } from "expo-router";
 
 import DiscordButton from "@/components/ui/Login/DiscordButton";
@@ -21,25 +15,19 @@ export default function HomeScreen() {
     <SafeAreaView style={styles.container}>
       <View style={styles.backgroundWrapper}>
         <Logo />
-        <View style={styles.authContainer}>
-          {/* Login Sign */}
+        <View style={[styles.authContainer, { zIndex: 2 }]}>
           <Text style={styles.loginTitle}>Login</Text>
 
-          {/* Create Button  */}
           <CreateButton />
 
-          {/* Separate Buttons  */}
           <Separator />
 
-          {/* Discord Button */}
           <DiscordButton />
-
-          {/* Background Flare */}
-          <Image
-            source={require("@/assets/images/bottom-flare.png")}
-            style={[styles.bottomFlare, { zIndex: 0 }]}
-          />
         </View>
+        <Image
+          source={require("@/assets/images/bottom-flare.png")}
+          style={[styles.bottomFlare]}
+        />
       </View>
     </SafeAreaView>
   );
@@ -58,7 +46,7 @@ const styles = StyleSheet.create({
   authContainer: {
     width: "100%",
     height: 470,
-    backgroundColor: "#101012",
+    backgroundColor: "rgba(16, 16, 18, 0.1)",
     alignItems: "center",
     borderTopColor: "#212123",
     borderTopWidth: 3,
@@ -73,7 +61,7 @@ const styles = StyleSheet.create({
   },
   bottomFlare: {
     position: "absolute",
-    zIndex: 3,
+    zIndex: 0,
     width: "150%",
     height: 340,
     bottom: 0,

@@ -5,12 +5,7 @@ import BottomText from "@/components/ui/permission/BottomInfo";
 import ContinueButton from "@/components/ui/permission/ContinueButton";
 import TitleText from "@/components/ui/permission/titleText";
 
-import {
-  View,
-  Image,
-  StyleSheet,
-  SafeAreaView,
-} from "react-native";
+import { View, Image, StyleSheet, SafeAreaView } from "react-native";
 
 export default function HomeScreen() {
   const [SensorEnabled, setSensorEnabled] = useState(false);
@@ -18,36 +13,30 @@ export default function HomeScreen() {
   return (
     <SafeAreaView style={styles.container}>
       <View style={styles.backgroundWrapper}>
-        <View style={styles.authContainer}>
+        <View style={[styles.authContainer, {zIndex: 2}]}>
           <TitleText />
 
-          {/* Motion Sensors Permission */}
           <Sensor
             Enable={SensorEnabled}
             Activate={() => setSensorEnabled(!SensorEnabled)}
           />
 
-          {/* Location Permission */}
           <Location
             Enable={LocationEnabled}
             Activate={() => setLocationEnabled(!LocationEnabled)}
           />
 
-          {/* Bottom Information */}
           <BottomText />
 
-          {/* Continue Button */}
           <ContinueButton
             sensorCheck={SensorEnabled}
             locationCheck={LocationEnabled}
           />
-
-          {/* Background Flare */}
-          <Image
-            source={require("@/assets/images/bottom-flare.png")}
-            style={styles.bottomFlare}
-          />
         </View>
+        <Image
+          source={require("@/assets/images/bottom-flare.png")}
+          style={styles.bottomFlare}
+        />
       </View>
     </SafeAreaView>
   );
@@ -60,12 +49,14 @@ const styles = StyleSheet.create({
   },
   backgroundWrapper: {
     flex: 1,
+    justifyContent: "center",
+    alignItems: "center",
     position: "relative",
   },
   authContainer: {
     width: "100%",
     position: "absolute",
-    backgroundColor: "#101012",
+    backgroundColor: "rgba(16, 16, 18, 0.1)",
     alignItems: "center",
     borderTopColor: "#212123",
     borderTopWidth: 3,
@@ -76,7 +67,7 @@ const styles = StyleSheet.create({
   },
   bottomFlare: {
     position: "absolute",
-    zIndex: 3,
+    zIndex: 0,
     width: "150%",
     height: 340,
     bottom: 0,
