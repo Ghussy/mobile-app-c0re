@@ -10,8 +10,8 @@ export default function PermissionsScreen() {
       <Text style={styles.description}>
         This app will track your location in the background
       </Text>
-      
-      <TouchableOpacity 
+
+      <TouchableOpacity
         style={styles.button}
         onPress={() => router.replace("/(tabs)/leaderboard")}
       >
@@ -37,15 +37,15 @@ const styles = StyleSheet.create({
   },
   title: {
     fontSize: 28,
-    fontWeight: 'bold',
+    fontWeight: "bold",
     marginBottom: 20,
     color: "white",
-    textAlign: 'center',
+    textAlign: "center",
   },
   description: {
     fontSize: 16,
-    color: '#e0e0e0',
-    textAlign: 'center',
+    color: "#e0e0e0",
+    textAlign: "center",
     marginHorizontal: 30,
     marginBottom: 30,
   },
@@ -53,13 +53,13 @@ const styles = StyleSheet.create({
     backgroundColor: "#27272a",
     padding: 15,
     borderRadius: 8,
-    width: '80%',
-    alignItems: 'center',
+    width: "80%",
+    alignItems: "center",
     marginTop: 20,
   },
   buttonText: {
-    color: 'white',
+    color: "white",
     fontSize: 16,
-    fontWeight: '600',
+    fontWeight: "600",
   },
-}); 
+});

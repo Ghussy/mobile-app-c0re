@@ -7,7 +7,7 @@ type ContinueProp = {
 };
 
 const Continue = ({ locationCheck, sensorCheck }: ContinueProp) => {
-    const router = useRouter();
+  const router = useRouter();
   const userPress = () => {
     if (locationCheck && sensorCheck) {
       console.log("Access All");
