@@ -62,7 +62,8 @@
           "appCompatVersion": "1.4.2"
         }
       ],
-      "expo-sqlite"
+      "expo-sqlite",
+      "expo-font"
     ],
     "experiments": {
       "typedRoutes": true

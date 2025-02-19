@@ -1,4 +1,4 @@
-import React, { useRef } from "react";
+import React, { useRef, useEffect } from "react";
 import { Pressable, Animated, StyleSheet } from "react-native";
 
 type SwitchProps = {
@@ -9,18 +9,17 @@ type SwitchProps = {
 const Switch = ({ isOn, onToggle }: SwitchProps) => {
   const translateX = useRef(new Animated.Value(0)).current;
 
-  const toggleSwitch = () => {
+  useEffect(() => {
     Animated.timing(translateX, {
-      toValue: isOn ? 0 : 23,
+      toValue: isOn ? 23 : 0,
       duration: 200,
       useNativeDriver: true,
     }).start();
-    onToggle();
-  };
+  }, [isOn]);
 
   return (
     <Pressable
-      onPress={toggleSwitch}
+      onPress={onToggle}
       style={[styles.switchContainer, isOn && styles.switchOn]}
     >
       <Animated.View

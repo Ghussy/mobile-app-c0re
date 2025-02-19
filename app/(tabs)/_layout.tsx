@@ -1,46 +1,49 @@
-import { Stack } from "expo-router";
-import { TouchableOpacity, Text } from "react-native";
-import { useRouter } from "expo-router";
+import { Tabs } from "expo-router";
+import { Ionicons } from '@expo/vector-icons';
 
 export default function TabsLayout() {
-  const router = useRouter();
-
   return (
-    <Stack
+    <Tabs
       screenOptions={{
-        headerRight: () => (
-          <TouchableOpacity
-            onPress={() => router.push("/(tabs)/settings")}
-            style={{ marginRight: 15 }}
-          >
-            <Text style={{ color: "white", fontSize: 16 }}>⚙️</Text>
-          </TouchableOpacity>
-        ),
-        headerStyle: {
-          backgroundColor: "#09090b",
+        tabBarStyle: { 
+          backgroundColor: '#09090b',
+          borderTopColor: 'rgba(255, 255, 255, 0.1)',
         },
-        headerTintColor: "white",
+        tabBarActiveTintColor: 'white',
+        tabBarInactiveTintColor: '#71717a',
+        headerStyle: {
+          backgroundColor: '#09090b',
+        },
+        headerTintColor: 'white',
       }}
     >
-      <Stack.Screen
+      <Tabs.Screen
         name="leaderboard"
         options={{
           title: "Leaderboard",
+          tabBarIcon: ({ color, size }) => (
+            <Ionicons name="trophy-outline" size={size} color={color} />
+          ),
         }}
       />
-      <Stack.Screen
+      <Tabs.Screen
         name="history"
         options={{
-          title: "Location History",
+          title: "History",
+          tabBarIcon: ({ color, size }) => (
+            <Ionicons name="time-outline" size={size} color={color} />
+          ),
         }}
       />
-      <Stack.Screen
+      <Tabs.Screen
         name="settings"
         options={{
-          presentation: "modal",
           title: "Settings",
+          tabBarIcon: ({ color, size }) => (
+            <Ionicons name="settings-outline" size={size} color={color} />
+          ),
         }}
       />
-    </Stack>
+    </Tabs>
   );
 }
