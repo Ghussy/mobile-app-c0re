@@ -9,8 +9,6 @@ import Logo from "@/components/ui/Login/Logo";
 import Separator from "@/components/ui/Login/Separate";
 
 export default function HomeScreen() {
-  const router = useRouter();
-
   return (
     <SafeAreaView style={styles.container}>
       <View style={styles.backgroundWrapper}>
