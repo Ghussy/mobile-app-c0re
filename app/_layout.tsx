@@ -5,14 +5,14 @@ import { StatusBar } from "expo-status-bar";
 import { useEffect } from "react";
 import "react-native-reanimated";
 import { LocationReporter } from "@/providers/LocationReporter";
-import { gestureHandlerRootHOC } from 'react-native-gesture-handler';
+import { gestureHandlerRootHOC } from "react-native-gesture-handler";
 import {
   useFonts,
   Inter_400Regular,
   Inter_500Medium,
   Inter_600SemiBold,
   Inter_700Bold,
-} from '@expo-google-fonts/inter';
+} from "@expo-google-fonts/inter";
 
 // Prevent the splash screen from auto-hiding before asset loading is complete.
 SplashScreen.preventAutoHideAsync();
@@ -21,7 +21,7 @@ SplashScreen.preventAutoHideAsync();
 
 export default gestureHandlerRootHOC(function RootLayout() {
   const [loaded] = useFonts({
-    'Orbitron-Bold': require('../assets/fonts/Orbitron-Bold.ttf'),
+    "Orbitron-Bold": require("../assets/fonts/Orbitron-Bold.ttf"),
     Inter_400Regular,
     Inter_500Medium,
     Inter_600SemiBold,
@@ -49,4 +49,3 @@ export default gestureHandlerRootHOC(function RootLayout() {
     </ThemeProvider>
   );
 });
-

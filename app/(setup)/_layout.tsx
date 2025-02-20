@@ -7,4 +7,4 @@ export default function SetupLayout() {
       <Stack.Screen name="setGym" />
     </Stack>
   );
-} 
+}
