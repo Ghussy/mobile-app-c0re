@@ -13,6 +13,7 @@ import {
   Inter_600SemiBold,
   Inter_700Bold,
 } from "@expo-google-fonts/inter";
+import { AuthProvider } from "@/lib/supabase";
 
 // Prevent the splash screen from auto-hiding before asset loading is complete.
 SplashScreen.preventAutoHideAsync();
@@ -40,12 +41,14 @@ export default gestureHandlerRootHOC(function RootLayout() {
 
   return (
     <ThemeProvider value={DarkTheme}>
-      <LocationReporter />
-      <Stack screenOptions={{ headerShown: false }}>
-        <Stack.Screen name="(auth)" />
-        <Stack.Screen name="(tabs)" />
-      </Stack>
-      <StatusBar style="light" />
+      <AuthProvider>
+        <LocationReporter />
+        <Stack screenOptions={{ headerShown: false }}>
+          <Stack.Screen name="(auth)" />
+          <Stack.Screen name="(tabs)" />
+        </Stack>
+        <StatusBar style="light" />
+      </AuthProvider>
     </ThemeProvider>
   );
 });
