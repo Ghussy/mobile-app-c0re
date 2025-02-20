@@ -2,14 +2,23 @@ import React, { useState } from "react";
 import Location from "@/components/ui/permission/LocationTab";
 import Sensor from "@/components/ui/permission/SensorTab";
 import BottomText from "@/components/ui/permission/BottomInfo";
-import ContinueButton from "@/components/ui/permission/ContinueButton";
+import Button from "@/components/ui/Button";
 import TitleText from "@/components/ui/permission/titleText";
+import { useRouter } from "expo-router";
 
 import { View, Image, StyleSheet, SafeAreaView } from "react-native";
 
-export default function HomeScreen() {
-  const [SensorEnabled, setSensorEnabled] = useState(false);
-  const [LocationEnabled, setLocationEnabled] = useState(false);
+export default function PermissionScreen() {
+  const router = useRouter();
+  const [SensorEnabled, setSensorEnabled] = useState(true);
+  const [LocationEnabled, setLocationEnabled] = useState(true);
+
+  const handleContinue = () => {
+    if (LocationEnabled && SensorEnabled) {
+      router.push("/(setup)/setGoal");
+    }
+  };
+
   return (
     <SafeAreaView style={styles.container}>
       <View style={styles.backgroundWrapper}>
@@ -28,9 +37,9 @@ export default function HomeScreen() {
 
           <BottomText />
 
-          <ContinueButton
-            sensorCheck={SensorEnabled}
-            locationCheck={LocationEnabled}
+          <Button
+            disabled={!(LocationEnabled && SensorEnabled)}
+            onPress={handleContinue}
           />
         </View>
         <Image
