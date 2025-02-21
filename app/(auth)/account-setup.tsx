@@ -1,27 +1,49 @@
 import React, { useState } from "react";
-import { View, Image, StyleSheet, SafeAreaView, Text, TextInput, KeyboardAvoidingView, TouchableOpacity} from "react-native";
+import {
+  View,
+  Image,
+  StyleSheet,
+  SafeAreaView,
+  Text,
+  TextInput,
+  KeyboardAvoidingView,
+} from "react-native";
+import Button from "@/components/ui/Button";
+import { useRouter } from "expo-router";
 
 export default function HomeScreen() {
   const [name, setName] = useState("");
+  const router = useRouter();
+
+  const handleContinue = () => {
+    router.push("/(setup)/setGoal");
+  };
 
   return (
     <KeyboardAvoidingView behavior="padding" style={styles.container}>
       <View style={styles.wrapper}>
-        <View style={styles.authSection}>
+        <View style={[styles.authSection, { zIndex: 2 }]}>
           <View style={styles.infoContainer}>
             <Text style={styles.title}>Help others recognize you!</Text>
             <Text style={styles.description}>
-              Since Discord usernames aren’t always clear, please provide your real name.
+              Since Discord usernames aren’t always clear, please provide your
+              real name.
             </Text>
-            
+
             <View style={styles.userInfoWrapper}>
-              <Image source={require("@/assets/images/placeholder.jpeg")} style={styles.profileImage} />
+              <Image
+                source={require("@/assets/images/placeholder.jpeg")}
+                style={styles.profileImage}
+              />
               <View style={styles.discordInfo}>
-                <Image source={require("@/assets/images/discord-gray-icon.png")} style={styles.discordIcon} />
+                <Image
+                  source={require("@/assets/images/discord-gray-icon.png")}
+                  style={styles.discordIcon}
+                />
                 <Text style={styles.userName}>Hussy</Text>
               </View>
             </View>
-            
+
             <TextInput
               style={styles.input}
               onChangeText={setName}
@@ -29,13 +51,14 @@ export default function HomeScreen() {
               placeholder="Enter your name"
               placeholderTextColor="#A1A1AA"
             />
+
+            <Button disabled={name.length < 1} onPress={handleContinue} />
           </View>
 
-          {/* <TouchableOpacity disabled={name.length < 1} style={styles.submitButton}>
-            <Text style={styles.buttonText}>Finish</Text>
-          </TouchableOpacity> */}
-
-          <Image source={require("@/assets/images/bottom-flare.png")} style={styles.backgroundFlare} />
+          <Image
+            source={require("@/assets/images/bottom-flare.png")}
+            style={styles.backgroundFlare}
+          />
         </View>
       </View>
     </KeyboardAvoidingView>
@@ -60,11 +83,11 @@ const styles = StyleSheet.create({
     paddingVertical: 30,
     paddingHorizontal: 20,
     bottom: 0,
-    marginTop: 120
+    marginTop: 120,
   },
   backgroundFlare: {
     position: "absolute",
-    zIndex: 3,
+    zIndex: -1,
     width: "150%",
     height: 340,
     bottom: 0,
@@ -95,6 +118,7 @@ const styles = StyleSheet.create({
     marginTop: 30,
     height: 55,
     paddingLeft: 15,
+    marginBottom: 10
   },
   discordInfo: {
     flexDirection: "row",
