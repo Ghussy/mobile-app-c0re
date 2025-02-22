@@ -8,12 +8,24 @@ import { pickPlace } from "react-native-place-picker";
 
 export default function SetGymScreen() {
   const router = useRouter();
-  const [selectedGyms, setSelectedGyms] = React.useState<string[]>([]);
+  const [selectedGyms, setSelectedGyms] = React.useState<
+    Array<{ name: string; address?: string }>
+  >([]);
 
   const toggleGym = (gym: string) => {
     setSelectedGyms((prev) =>
-      prev.includes(gym) ? prev.filter((g) => g !== gym) : [...prev, gym]
+      prev.some((g) => g.name === gym)
+        ? prev.filter((g) => g.name !== gym)
+        : [...prev, { name: gym }]
     );
+  };
+
+  const addCustomGym = (name: string, address?: string) => {
+    setSelectedGyms((prev) => [...prev, { name, address }]);
+  };
+
+  const removeGym = (gymName: string) => {
+    setSelectedGyms((prev) => prev.filter((gym) => gym.name !== gymName));
   };
 
   return (
@@ -37,21 +49,39 @@ export default function SetGymScreen() {
             <ToggleCard
               name="Vasa"
               icon="navigation"
-              isSelected={selectedGyms.includes("vasa")}
-              onToggle={() => toggleGym("vasa")}
+              isSelected={selectedGyms.some((gym) => gym.name === "Vasa")}
+              onToggle={() => toggleGym("Vasa")}
             />
             <ToggleCard
               name="EOS"
               icon="navigation"
-              isSelected={selectedGyms.includes("eos")}
-              onToggle={() => toggleGym("eos")}
+              isSelected={selectedGyms.some((gym) => gym.name === "EOS")}
+              onToggle={() => toggleGym("EOS")}
             />
             <ToggleCard
               name="Planet Fitness"
               icon="navigation"
-              isSelected={selectedGyms.includes("planet")}
-              onToggle={() => toggleGym("planet")}
+              isSelected={selectedGyms.some(
+                (gym) => gym.name === "Planet Fitness"
+              )}
+              onToggle={() => toggleGym("Planet Fitness")}
             />
+
+            {/* Custom Selected Gyms */}
+            {selectedGyms.map(
+              (gym) =>
+                gym.address && (
+                  <ToggleCard
+                    key={gym.name}
+                    name={gym.name}
+                    subtitle={gym.address}
+                    icon="navigation"
+                    variant="delete"
+                    onDelete={() => removeGym(gym.name)}
+                  />
+                )
+            )}
+
             <ToggleCard
               name="Add Gym"
               icon="plus"
@@ -71,9 +101,10 @@ export default function SetGymScreen() {
                 })
                   .then((result) => {
                     if (!result.didCancel && result.address) {
-                      // Here you can handle the selected gym
-                      console.log("Selected gym:", result.address.name);
-                      console.log("Location:", result.coordinate);
+                      addCustomGym(
+                        result.address.name,
+                        result.address.streetName
+                      );
                     }
                   })
                   .catch(console.error);

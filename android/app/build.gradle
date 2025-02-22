@@ -100,6 +100,7 @@ Project background_fetch = project(':react-native-background-fetch')
         targetSdkVersion rootProject.ext.targetSdkVersion
         versionCode 1
         versionName "1.0.0"
+        manifestPlaceholders = [MAPS_API_KEY: project.properties['MAPS_API_KEY'] ?: ""]
     }
     signingConfigs {
         debug {
