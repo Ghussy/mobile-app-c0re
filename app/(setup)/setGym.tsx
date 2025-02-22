@@ -4,24 +4,23 @@ import { useRouter } from "expo-router";
 import { LinearGradient } from "expo-linear-gradient";
 import Button from "@/components/ui/Button";
 import ToggleCard from "@/components/ui/toggle-card";
+import { pickPlace } from "react-native-place-picker";
 
 export default function SetGymScreen() {
   const router = useRouter();
   const [selectedGyms, setSelectedGyms] = React.useState<string[]>([]);
 
   const toggleGym = (gym: string) => {
-    setSelectedGyms(prev => 
-      prev.includes(gym) 
-        ? prev.filter(g => g !== gym)
-        : [...prev, gym]
+    setSelectedGyms((prev) =>
+      prev.includes(gym) ? prev.filter((g) => g !== gym) : [...prev, gym]
     );
   };
 
   return (
     <SafeAreaView style={styles.container}>
-      <LinearGradient 
+      <LinearGradient
         style={styles.card}
-        colors={['rgba(255, 255, 255, 0.03)', 'rgba(255, 255, 255, 0)']}
+        colors={["rgba(255, 255, 255, 0.03)", "rgba(255, 255, 255, 0)"]}
         locations={[0, 1]}
         start={{ x: 0, y: 0 }}
         end={{ x: 0, y: 1 }}
@@ -35,35 +34,56 @@ export default function SetGymScreen() {
 
           {/* Main Content */}
           <View style={styles.mainContent}>
-            <ToggleCard 
-              name="Vasa" 
+            <ToggleCard
+              name="Vasa"
               icon="navigation"
-              isSelected={selectedGyms.includes('vasa')}
-              onToggle={() => toggleGym('vasa')}
+              isSelected={selectedGyms.includes("vasa")}
+              onToggle={() => toggleGym("vasa")}
             />
-            <ToggleCard 
+            <ToggleCard
               name="EOS"
               icon="navigation"
-              isSelected={selectedGyms.includes('eos')}
-              onToggle={() => toggleGym('eos')}
+              isSelected={selectedGyms.includes("eos")}
+              onToggle={() => toggleGym("eos")}
             />
-            <ToggleCard 
-              name="Planet Fitness" 
+            <ToggleCard
+              name="Planet Fitness"
               icon="navigation"
-              isSelected={selectedGyms.includes('planet')}
-              onToggle={() => toggleGym('planet')}
+              isSelected={selectedGyms.includes("planet")}
+              onToggle={() => toggleGym("planet")}
             />
-            <ToggleCard 
+            <ToggleCard
               name="Add Gym"
               icon="plus"
               variant="add"
-              onToggle={() => {/* Handle add gym */}}
+              onToggle={() => {
+                pickPlace({
+                  presentationStyle: "fullscreen",
+                  title: "Add Your Gym",
+                  searchPlaceholder: "Search for your gym...",
+                  color: "#27272a",
+                  contrastColor: "#ffffff",
+                  enableUserLocation: true,
+                  enableGeocoding: true,
+                  enableSearch: true,
+                  enableLargeTitle: true,
+                  rejectOnCancel: true,
+                })
+                  .then((result) => {
+                    if (!result.didCancel && result.address) {
+                      // Here you can handle the selected gym
+                      console.log("Selected gym:", result.address.name);
+                      console.log("Location:", result.coordinate);
+                    }
+                  })
+                  .catch(console.error);
+              }}
             />
           </View>
 
           {/* Footer */}
           <View style={styles.footer}>
-            <Button 
+            <Button
               onPress={() => router.push("/(tabs)/leaderboard")}
               buttonStyles={styles.button}
             >
@@ -91,37 +111,37 @@ const styles = StyleSheet.create({
   content: {
     flex: 1,
     padding: 20,
-    justifyContent: 'flex-start',
+    justifyContent: "flex-start",
     paddingTop: 95,
   },
   header: {
-    alignItems: 'center',
+    alignItems: "center",
     marginBottom: 60,
   },
   title: {
     fontSize: 26,
-    fontFamily: 'Inter_700Bold',
+    fontFamily: "Inter_700Bold",
     color: "white",
     textAlign: "center",
     marginBottom: 10,
   },
   subtitle: {
     fontSize: 16,
-    fontFamily: 'Inter_500Medium',
-    color: '#a1a1aa',
-    textAlign: 'center',
+    fontFamily: "Inter_500Medium",
+    color: "#a1a1aa",
+    textAlign: "center",
     lineHeight: 24,
   },
   mainContent: {
     flex: 1,
-    alignItems: 'center',
+    alignItems: "center",
   },
   footer: {
-    marginTop: 'auto',
-    width: '100%',
+    marginTop: "auto",
+    width: "100%",
   },
   button: {
-    width: '100%',
-    backgroundColor: '#27272a',
+    width: "100%",
+    backgroundColor: "#27272a",
   },
-}); 
+});
