@@ -1,10 +1,11 @@
-import React from "react";
+import React, { useState } from "react";
 import { View, Text, StyleSheet, Pressable } from "react-native";
-import { Navigation, Plus, Trash2 } from "lucide-react-native";
+import { Navigation, Plus, Trash2, X } from "lucide-react-native";
 import DarkSwitch from "@/components/ui/permission/DarkSwitch";
 
 interface ToggleCardProps {
   name: string;
+  subtitle?: string;
   isSelected?: boolean;
   onToggle: () => void;
   onDelete?: () => void;
@@ -14,28 +15,34 @@ interface ToggleCardProps {
 
 const ToggleCard = ({
   name,
+  subtitle,
   isSelected = false,
   onToggle,
   onDelete,
   variant = "default",
   icon = "navigation",
 }: ToggleCardProps) => {
+  const [showSubtitle, setShowSubtitle] = useState(false);
+
   return (
-    <Pressable onPress={onToggle} style={styles.cardContent}>
+    <Pressable
+      onPress={() => (subtitle ? setShowSubtitle(!showSubtitle) : onToggle())}
+      style={styles.cardContent}
+    >
       {icon === "navigation" ? (
         <Navigation size={24} color="#fafafa" />
       ) : (
         <Plus size={24} color="#fafafa" />
       )}
       <View style={styles.textWrapper}>
-        <Text style={styles.name}>{name}</Text>
+        <Text style={styles.name}>{showSubtitle ? subtitle : name}</Text>
       </View>
       {variant === "default" && (
         <DarkSwitch isOn={isSelected} onToggle={onToggle} />
       )}
       {variant === "delete" && (
         <Pressable onPress={onDelete}>
-          <Trash2 size={24} color="#DB2777" />
+          <X size={24} color="#ef4444" />
         </Pressable>
       )}
     </Pressable>

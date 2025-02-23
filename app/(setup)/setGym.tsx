@@ -5,6 +5,7 @@ import { LinearGradient } from "expo-linear-gradient";
 import Button from "@/components/ui/Button";
 import ToggleCard from "@/components/ui/toggle-card";
 import { pickPlace } from "react-native-place-picker";
+import { getCurrentLocation } from "@/providers/LocationReporter";
 
 export default function SetGymScreen() {
   const router = useRouter();
@@ -78,6 +79,7 @@ export default function SetGymScreen() {
                     icon="navigation"
                     variant="delete"
                     onDelete={() => removeGym(gym.name)}
+                    onToggle={() => toggleGym(gym.name)}
                   />
                 )
             )}
@@ -86,28 +88,55 @@ export default function SetGymScreen() {
               name="Add Gym"
               icon="plus"
               variant="add"
-              onToggle={() => {
-                pickPlace({
-                  presentationStyle: "fullscreen",
-                  title: "Add Your Gym",
-                  searchPlaceholder: "Search for your gym...",
-                  color: "#27272a",
-                  contrastColor: "#ffffff",
-                  enableUserLocation: true,
-                  enableGeocoding: true,
-                  enableSearch: true,
-                  enableLargeTitle: true,
-                  rejectOnCancel: true,
-                })
-                  .then((result) => {
-                    if (!result.didCancel && result.address) {
-                      addCustomGym(
-                        result.address.name,
-                        result.address.streetName
-                      );
-                    }
+              onToggle={async () => {
+                try {
+                  const { coords } = await getCurrentLocation();
+
+                  pickPlace({
+                    presentationStyle: "fullscreen",
+                    title: "Add Your Gym",
+                    searchPlaceholder: "Search for your gym...",
+                    color: "#27272a",
+                    contrastColor: "#ffffff",
+                    enableUserLocation: true,
+                    enableGeocoding: true,
+                    enableSearch: true,
+                    enableLargeTitle: true,
+                    initialCoordinates: {
+                      latitude: coords.latitude,
+                      longitude: coords.longitude,
+                    },
+                    rejectOnCancel: false,
                   })
-                  .catch(console.error);
+                    .then((result) => {
+                      if (result && result.address) {
+                        console.log(
+                          "Full place result:",
+                          JSON.stringify(result, null, 2)
+                        );
+                        console.log(
+                          "Address object:",
+                          JSON.stringify(result.address, null, 2)
+                        );
+
+                        const gymName =
+                          result.address.name || result.address.streetName;
+                        const gymAddress = result.address.streetName;
+
+                        console.log("Using name:", gymName);
+                        console.log("Using address:", gymAddress);
+
+                        addCustomGym(gymName, gymAddress);
+                      }
+                    })
+                    .catch((error) => {
+                      if (!error.toString().includes("cancel")) {
+                        console.error(error);
+                      }
+                    });
+                } catch (error) {
+                  console.error("Error getting location:", error);
+                }
               }}
             />
           </View>

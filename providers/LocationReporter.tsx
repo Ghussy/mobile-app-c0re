@@ -4,6 +4,14 @@ import BackgroundGeolocation from "react-native-background-geolocation";
 
 import { logLocation } from "@/lib/sqlite";
 
+// Add this function to get current location
+export const getCurrentLocation = async () => {
+  return BackgroundGeolocation.getCurrentPosition({
+    persist: false,
+    samples: 1
+  });
+};
+
 export function LocationReporter() {
   useEffect(() => {
     BackgroundGeolocation.ready({
