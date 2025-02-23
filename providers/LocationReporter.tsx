@@ -8,7 +8,7 @@ import { logLocation } from "@/lib/sqlite";
 export const getCurrentLocation = async () => {
   return BackgroundGeolocation.getCurrentPosition({
     persist: false,
-    samples: 1
+    samples: 1,
   });
 };
 

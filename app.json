@@ -1,7 +1,7 @@
 {
   "expo": {
-    "name": "app",
-    "slug": "app",
+    "name": "c0re",
+    "slug": "c0re",
     "version": "1.0.0",
     "orientation": "portrait",
     "icon": "./assets/images/logo.png",
@@ -10,7 +10,9 @@
     "newArchEnabled": true,
     "ios": {
       "supportsTablet": true,
-      "bundleIdentifier": "com.anonymous.app",
+      "bundleIdentifier": "com.c0re",
+      "config": {
+      },
       "infoPlist": {
         "NSLocationAlwaysAndWhenInUseUsageDescription": "This app requires location in the background 🦍",
         "NSLocationWhenInUseUsageDescription": "This app requires location while in use 🦍",
@@ -27,7 +29,9 @@
         "foregroundImage": "./assets/images/logo.png",
         "backgroundColor": "#ffffff"
       },
-      "package": "com.anonymous.app"
+      "package": "com.c0re",
+      "config": {
+      }
     },
     "web": {
       "bundler": "metro",
@@ -59,6 +63,15 @@
     ],
     "experiments": {
       "typedRoutes": true
-    }
+    },
+    "extra": {
+      "router": {
+        "origin": false
+      },
+      "eas": {
+        "projectId": "aa5840e7-9a8d-45aa-9bce-7b5eb36dca45"
+      }
+    },
+    "owner": "ghuscroft"
   }
 }
