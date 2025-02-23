@@ -12,7 +12,7 @@
     <key>CFBundleDevelopmentRegion</key>
     <string>$(DEVELOPMENT_LANGUAGE)</string>
     <key>CFBundleDisplayName</key>
-    <string>app</string>
+    <string>c0re</string>
     <key>CFBundleExecutable</key>
     <string>$(EXECUTABLE_NAME)</string>
     <key>CFBundleIdentifier</key>
@@ -32,8 +32,8 @@
       <dict>
         <key>CFBundleURLSchemes</key>
         <array>
-          <string>myapp</string>
-          <string>com.anonymous.app</string>
+          <string>com.c0re.app</string>
+          <string>com.c0re.app</string>
         </array>
       </dict>
     </array>
