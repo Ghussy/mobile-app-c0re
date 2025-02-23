@@ -1,21 +1,14 @@
 import React from "react";
 import { TouchableOpacity, Text, Image, StyleSheet } from "react-native";
-import axios from "axios";
-import * as WebBrowser from "expo-web-browser";
+
+import { signInWithDiscord } from "@/lib/supabase";
 
 const Button = () => {
   const signIn = async () => {
     try {
-      const response = await axios.get("http://10.0.2.2:5000/login");
-      const result = await WebBrowser.openAuthSessionAsync(
-        response.data.authUrl,
-      );
-      console.log(result);
-      if (result.type === "dismiss") {
-        console.log("check");
-      }
-    } catch (error) {
-      console.error("Error fetching data:", error);
+      await signInWithDiscord();
+    } catch (e) {
+      console.error(e);
     }
   };
 
