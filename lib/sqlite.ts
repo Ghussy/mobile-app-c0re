@@ -11,6 +11,14 @@ CREATE TABLE IF NOT EXISTS location_history (
   longitude REAL NOT NULL,
   speed REAL,
   timestamp DATETIME DEFAULT CURRENT_TIMESTAMP
+);
+
+CREATE TABLE IF NOT EXISTS gyms (
+  id INTEGER PRIMARY KEY AUTOINCREMENT,
+  name TEXT NOT NULL UNIQUE,
+  latitude REAL NOT NULL,
+  longitude REAL NOT NULL,
+  builtin BOOLEAN NOT NULL
 );`,
 );
 
@@ -43,4 +51,44 @@ export async function getRecentLocations(limit: number = 50): Promise<
     "SELECT * FROM location_history ORDER BY timestamp DESC LIMIT ?",
     limit,
   );
+}
+
+export interface Gym {
+  name: string;
+  builtin: boolean;
+}
+
+export async function enrollGym(
+  name: string,
+  latitude: number,
+  longitude: number,
+  builtin: boolean,
+): Promise<void> {
+  await db.runAsync(
+    "INSERT INTO gyms (name, latitude, longitude, builtin) VALUES (?, ?, ?, ?)",
+    name,
+    latitude,
+    longitude,
+    builtin ? 1 : 0,
+  );
+}
+
+export async function unenrollGym(
+  name: string,
+  builtin: boolean,
+): Promise<void> {
+  await db.runAsync(
+    "DELETE FROM gyms WHERE name = ? AND builtin = ?",
+    name,
+    builtin ? 1 : 0,
+  );
+}
+
+export async function enrolledGyms(): Promise<Gym[]> {
+  const gyms = await db.getAllAsync("SELECT name, builtin FROM gyms");
+
+  return gyms.map((gym) => ({
+    ...(gym as any as Gym),
+    builtin: (gym as any).builtin === 1,
+  }));
 }
