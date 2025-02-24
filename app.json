@@ -11,8 +11,7 @@
     "ios": {
       "supportsTablet": true,
       "bundleIdentifier": "com.c0re",
-      "config": {
-      },
+      "config": {},
       "infoPlist": {
         "NSLocationAlwaysAndWhenInUseUsageDescription": "This app requires location in the background 🦍",
         "NSLocationWhenInUseUsageDescription": "This app requires location while in use 🦍",
@@ -30,8 +29,7 @@
         "backgroundColor": "#ffffff"
       },
       "package": "com.c0re",
-      "config": {
-      }
+      "config": {}
     },
     "web": {
       "bundler": "metro",
@@ -67,9 +65,6 @@
     "extra": {
       "router": {
         "origin": false
-      },
-      "eas": {
-        "projectId": "aa5840e7-9a8d-45aa-9bce-7b5eb36dca45"
       }
     },
     "owner": "ghuscroft"
