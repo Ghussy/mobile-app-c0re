@@ -1,4 +1,4 @@
-import React, { useEffect } from "react";
+import { useEffect, useState } from "react";
 import { SafeAreaView, View, Text, StyleSheet } from "react-native";
 import { useRouter } from "expo-router";
 import { LinearGradient } from "expo-linear-gradient";
@@ -8,7 +8,7 @@ import { enrollGym, unenrollGym, enrolledGyms, Gym } from "@/lib/sqlite";
 
 export default function SetGymScreen() {
   const router = useRouter();
-  const [selectedGyms, setSelectedGyms] = React.useState<Gym[]>([]);
+  const [selectedGyms, setSelectedGyms] = useState<Gym[]>([]);
 
   useEffect(() => {
     enrolledGyms().then(setSelectedGyms);
