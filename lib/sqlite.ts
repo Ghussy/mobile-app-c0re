@@ -19,7 +19,7 @@ CREATE TABLE IF NOT EXISTS gyms (
   latitude REAL NOT NULL,
   longitude REAL NOT NULL,
   builtin BOOLEAN NOT NULL
-);`
+);`,
 );
 
 function nullIfUndefined<T>(t: T | undefined): T | null {
@@ -29,13 +29,13 @@ function nullIfUndefined<T>(t: T | undefined): T | null {
 export async function logLocation(
   latitude: number,
   longitude: number,
-  speed: number | undefined
+  speed: number | undefined,
 ) {
   await db.runAsync(
     "INSERT INTO location_history (latitude, longitude, speed) VALUES (?, ?, ?)",
     latitude,
     longitude,
-    nullIfUndefined(speed)
+    nullIfUndefined(speed),
   );
 }
 
@@ -49,7 +49,7 @@ export async function getRecentLocations(limit: number = 50): Promise<
 > {
   return db.getAllAsync(
     "SELECT * FROM location_history ORDER BY timestamp DESC LIMIT ?",
-    limit
+    limit,
   );
 }
 
@@ -62,25 +62,25 @@ export async function enrollGym(
   name: string,
   latitude: number,
   longitude: number,
-  builtin: boolean
+  builtin: boolean,
 ): Promise<void> {
   await db.runAsync(
     "INSERT INTO gyms (name, latitude, longitude, builtin) VALUES (?, ?, ?, ?)",
     name,
     latitude,
     longitude,
-    builtin ? 1 : 0
+    builtin ? 1 : 0,
   );
 }
 
 export async function unenrollGym(
   name: string,
-  builtin: boolean
+  builtin: boolean,
 ): Promise<void> {
   await db.runAsync(
     "DELETE FROM gyms WHERE name = ? AND builtin = ?",
     name,
-    builtin ? 1 : 0
+    builtin ? 1 : 0,
   );
 }
 

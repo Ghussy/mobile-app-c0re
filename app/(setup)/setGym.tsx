@@ -17,7 +17,7 @@ export default function SetGymScreen() {
   function enrolledInBuiltinGym(name: string) {
     return (
       typeof selectedGyms.find(
-        (gym) => gym.name === name && gym.builtin === true
+        (gym) => gym.name === name && gym.builtin === true,
       ) !== "undefined"
     );
   }
@@ -25,7 +25,7 @@ export default function SetGymScreen() {
   const toggleGym = async (
     name: string,
     latitude: number,
-    longitude: number
+    longitude: number,
   ) => {
     if (enrolledInBuiltinGym(name)) {
       await unenrollGym(name, true);
