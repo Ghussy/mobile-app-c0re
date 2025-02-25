@@ -1,8 +1,26 @@
 import { useEffect } from "react";
 
-import BackgroundGeolocation from "react-native-background-geolocation";
+import BackgroundGeolocation, {
+  Coords,
+} from "react-native-background-geolocation";
 
-import { logLocation } from "@/lib/sqlite";
+import { lastSync, logLocation } from "@/lib/sqlite";
+import { supabase } from "@/lib/supabase";
+
+const BACKEND_UPDATE_FREQUENCY = 1000 * 60 * 60 * 4;
+
+async function syncIfNeeded() {
+  const lastUpdate = await lastSync();
+  const now = new Date();
+  if (
+    lastUpdate !== undefined &&
+    now.getTime() - lastUpdate.getTime() < BACKEND_UPDATE_FREQUENCY
+  ) {
+    return;
+  }
+
+  supabase.functions.invoke("update-leaderboard");
+}
 
 export function LocationReporter() {
   useEffect(() => {
@@ -18,6 +36,7 @@ export function LocationReporter() {
             persist: false,
           });
           await logLocation(coords.latitude, coords.longitude, coords.speed);
+          await syncIfNeeded();
         } catch (error) {
           console.error("Error fetching location:", error);
         }
@@ -26,6 +45,7 @@ export function LocationReporter() {
       BackgroundGeolocation.onLocation(async (location) => {
         const { coords } = location;
         await logLocation(coords.latitude, coords.longitude, coords.speed);
+        await syncIfNeeded();
       });
     });
   }, []);
