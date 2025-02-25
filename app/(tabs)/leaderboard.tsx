@@ -65,12 +65,17 @@ export default function LeaderboardScreen() {
       // Process the data based on the actual format returned by the Edge Function
       if (data && Array.isArray(data)) {
         // Transform the data to match our LeaderboardEntry type
-        const transformedData: LeaderboardEntry[] = data.map((item: any) => ({
-          rank: item.placment, // Note the spelling 'placment' from the API
-          name: item.name,
-          discord: item.discord,
-          score: item.week_streak, // Using week_streak as the score
-        }));
+        const transformedData: LeaderboardEntry[] = data.map((item: any) => {
+          const entry = {
+            rank: item.placment, // Note the spelling 'placment' from the API
+            name: item.fullname || "Unknown User", // Use fullname instead of name
+            discord: item.discord,
+            score: item.week_streak, // Using week_streak as the score
+          };
+
+          console.log("TRANSFORMED ENTRY:", JSON.stringify(entry, null, 2));
+          return entry;
+        });
 
         setLeaderboardData(transformedData);
         setTotalParticipants(data.length);
