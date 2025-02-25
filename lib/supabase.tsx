@@ -11,13 +11,24 @@ import { SUPABASE_URL, SUPABASE_ANON_KEY } from "./config";
 
 interface AuthContextType {
   user: User | undefined;
+  goalInfo: GymGoalInfo | undefined;
 }
 
-const AuthContext = createContext<AuthContextType>({ user: undefined });
+interface GymGoalInfo {
+  value: number;
+  set: (goal: number) => void;
+}
+
+const AuthContext = createContext<AuthContextType>({
+  user: undefined,
+  goalInfo: undefined,
+});
+
 const appRedirectUrl = makeRedirectUri({ path: "(tabs)/leaderboard" });
 
 export function AuthProvider({ children }: React.PropsWithChildren) {
   const [user, setUser] = useState<User | undefined>(undefined);
+  const [goalInfo, setGoalInfo] = useState<GymGoalInfo | undefined>(undefined);
 
   useEffect(() => {
     supabase.auth.getSession().then(({ data: { session } }) => {
@@ -30,11 +41,28 @@ export function AuthProvider({ children }: React.PropsWithChildren) {
       setUser(session?.user);
     });
 
+    supabase.functions.invoke("get-goal").then((response) => {
+      if (response.error) {
+        console.error(response.error);
+        return;
+      }
+
+      const goal = response.data.goal as number;
+      setGoalInfo({
+        value: goal,
+        set: (newGoal) => {
+          supabase.functions.invoke("set-goal", { body: newGoal.toString() });
+        },
+      });
+    });
+
     return () => subscription.unsubscribe();
   }, []);
 
   return (
-    <AuthContext.Provider value={{ user }}>{children}</AuthContext.Provider>
+    <AuthContext.Provider value={{ user, goalInfo }}>
+      {children}
+    </AuthContext.Provider>
   );
 }
 

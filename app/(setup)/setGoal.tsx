@@ -11,6 +11,7 @@ import { LinearGradient } from "expo-linear-gradient";
 import Button from "@/components/ui/Button";
 import { AnimatedCount } from "@/components/ui/wheel-picker/animated-count/animated-count";
 import { DraggableSlider } from "@/components/ui/wheel-picker/draggable-slider";
+import { useAuth } from "@/lib/supabase";
 
 const LINES_AMOUNT = 7;
 const API_UDPATE_DEBOUNCE = 500;
@@ -19,13 +20,16 @@ export default function SetGoalScreen() {
   const router = useRouter();
   const { isEditing } = useLocalSearchParams<{ isEditing?: string }>();
   const [_, setFetchTimeout] = useState<NodeJS.Timeout | undefined>(undefined);
+  const auth = useAuth();
 
   const daySelection = useSharedValue(0);
 
   function updateDaySelection(days: number) {
     setFetchTimeout((timeout) => {
       clearTimeout(timeout);
-      return setTimeout(() => console.log(days), API_UDPATE_DEBOUNCE);
+      return setTimeout(() => {
+        auth.goalInfo?.set(days);
+      }, API_UDPATE_DEBOUNCE);
     });
   }
 
@@ -34,7 +38,7 @@ export default function SetGoalScreen() {
     (days, prev) => {
       if (days === prev) return;
       runOnJS(updateDaySelection)(days);
-    },
+    }
   );
 
   const indicatorColor = useSharedValue("#22c55e");
