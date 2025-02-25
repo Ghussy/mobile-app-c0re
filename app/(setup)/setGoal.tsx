@@ -1,11 +1,6 @@
-import { useState } from "react";
 import { SafeAreaView, View, Text, StyleSheet } from "react-native";
 import { useRouter, useLocalSearchParams, Redirect } from "expo-router";
-import {
-  runOnJS,
-  useAnimatedReaction,
-  useSharedValue,
-} from "react-native-reanimated";
+import { useSharedValue } from "react-native-reanimated";
 import { LinearGradient } from "expo-linear-gradient";
 
 import Button from "@/components/ui/Button";
@@ -14,36 +9,19 @@ import { DraggableSlider } from "@/components/ui/wheel-picker/draggable-slider";
 import { setGymGoal, useAuth } from "@/lib/supabase";
 
 const LINES_AMOUNT = 7;
-const API_UDPATE_DEBOUNCE = 500;
 
 export default function SetGoalScreen() {
   const router = useRouter();
   const { isEditing } = useLocalSearchParams<{ isEditing?: string }>();
-  const [_, setFetchTimeout] = useState<NodeJS.Timeout | undefined>(undefined);
   const auth = useAuth();
 
   const daySelection = useSharedValue(0);
 
-  function updateDaySelection(days: number) {
-    setFetchTimeout((timeout) => {
-      clearTimeout(timeout);
-      return setTimeout(() => {
-        setGymGoal(days);
-      }, API_UDPATE_DEBOUNCE);
-    });
-  }
-
-  useAnimatedReaction(
-    () => daySelection.value,
-    (days, prev) => {
-      if (days === prev) return;
-      runOnJS(updateDaySelection)(days);
-    }
-  );
-
   const indicatorColor = useSharedValue("#22c55e");
 
   const handleContinue = () => {
+    setGymGoal(daySelection.value);
+
     if (isEditing) {
       // If editing from settings, show a reminder or do your logic
       // For now, we simply go back. Adjust as needed.
