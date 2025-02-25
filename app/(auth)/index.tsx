@@ -1,6 +1,5 @@
 import React from "react";
 import { View, Image, StyleSheet, SafeAreaView, Text } from "react-native";
-import { useRouter } from "expo-router";
 
 import DiscordButton from "@/components/ui/Login/DiscordButton";
 import CreateButton from "@/components/ui/Login/CreateAccountButton";
