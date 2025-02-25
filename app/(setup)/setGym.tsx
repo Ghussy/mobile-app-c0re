@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useEffect } from "react";
 import { SafeAreaView, View, Text, StyleSheet } from "react-native";
 import { useRouter } from "expo-router";
 import { LinearGradient } from "expo-linear-gradient";
@@ -6,27 +6,37 @@ import Button from "@/components/ui/Button";
 import ToggleCard from "@/components/ui/toggle-card";
 import { pickPlace } from "react-native-place-picker";
 import { getCurrentLocation } from "@/providers/LocationReporter";
+import { enrollGym, unenrollGym, enrolledGyms, Gym } from "@/lib/sqlite";
 
 export default function SetGymScreen() {
   const router = useRouter();
-  const [selectedGyms, setSelectedGyms] = React.useState<
-    Array<{ name: string; address?: string }>
-  >([]);
+  const [selectedGyms, setSelectedGyms] = React.useState<Gym[]>([]);
 
-  const toggleGym = (gym: string) => {
-    setSelectedGyms((prev) =>
-      prev.some((g) => g.name === gym)
-        ? prev.filter((g) => g.name !== gym)
-        : [...prev, { name: gym }]
+  useEffect(() => {
+    enrolledGyms().then(setSelectedGyms);
+  }, []);
+
+  function enrolledInGym(name: string, builtin: boolean = true) {
+    return (
+      typeof selectedGyms.find(
+        (gym) => gym.name === name && gym.builtin === builtin
+      ) !== "undefined"
     );
-  };
+  }
 
-  const addCustomGym = (name: string, address?: string) => {
-    setSelectedGyms((prev) => [...prev, { name, address }]);
-  };
+  const toggleGym = async (
+    name: string,
+    latitude: number,
+    longitude: number,
+    builtin: boolean = true
+  ) => {
+    if (enrolledInGym(name, builtin)) {
+      await unenrollGym(name, builtin);
+    } else {
+      await enrollGym(name, latitude, longitude, builtin);
+    }
 
-  const removeGym = (gymName: string) => {
-    setSelectedGyms((prev) => prev.filter((gym) => gym.name !== gymName));
+    setSelectedGyms(await enrolledGyms());
   };
 
   return (
@@ -50,39 +60,39 @@ export default function SetGymScreen() {
             <ToggleCard
               name="Vasa"
               icon="navigation"
-              isSelected={selectedGyms.some((gym) => gym.name === "Vasa")}
-              onToggle={() => toggleGym("Vasa")}
+              isSelected={enrolledInGym("Vasa")}
+              onToggle={() => toggleGym("Vasa", 0, 0)}
             />
             <ToggleCard
               name="EOS"
               icon="navigation"
-              isSelected={selectedGyms.some((gym) => gym.name === "EOS")}
-              onToggle={() => toggleGym("EOS")}
+              isSelected={enrolledInGym("EOS")}
+              onToggle={() => toggleGym("EOS", 0, 0)}
             />
             <ToggleCard
               name="Planet Fitness"
               icon="navigation"
-              isSelected={selectedGyms.some(
-                (gym) => gym.name === "Planet Fitness"
-              )}
-              onToggle={() => toggleGym("Planet Fitness")}
+              isSelected={enrolledInGym("Planet Fitness")}
+              onToggle={() => toggleGym("Planet Fitness", 0, 0)}
             />
 
             {/* Custom Selected Gyms */}
-            {selectedGyms.map(
-              (gym) =>
-                gym.address && (
-                  <ToggleCard
-                    key={gym.name}
-                    name={gym.name}
-                    subtitle={gym.address}
-                    icon="navigation"
-                    variant="delete"
-                    onDelete={() => removeGym(gym.name)}
-                    onToggle={() => toggleGym(gym.name)}
-                  />
-                )
-            )}
+            {selectedGyms
+              .filter((gym) => !gym.builtin)
+              .map((gym) => (
+                <ToggleCard
+                  key={gym.name}
+                  name={gym.name}
+                  subtitle={gym.address || `${gym.latitude}, ${gym.longitude}`}
+                  icon="navigation"
+                  variant="delete"
+                  onDelete={() => unenrollGym(gym.name, false)}
+                  isSelected={true}
+                  onToggle={() =>
+                    toggleGym(gym.name, gym.latitude, gym.longitude, false)
+                  }
+                />
+              ))}
 
             <ToggleCard
               name="Add Gym"
@@ -108,7 +118,7 @@ export default function SetGymScreen() {
                     },
                     rejectOnCancel: false,
                   })
-                    .then((result) => {
+                    .then(async (result) => {
                       if (result && result.address) {
                         console.log(
                           "Full place result:",
@@ -126,7 +136,14 @@ export default function SetGymScreen() {
                         console.log("Using name:", gymName);
                         console.log("Using address:", gymAddress);
 
-                        addCustomGym(gymName, gymAddress);
+                        await enrollGym(
+                          gymName,
+                          result.coordinate.latitude,
+                          result.coordinate.longitude,
+                          false,
+                          gymAddress
+                        );
+                        setSelectedGyms(await enrolledGyms());
                       }
                     })
                     .catch((error) => {
