@@ -8,6 +8,7 @@ export default function TabsLayout() {
   const auth = useAuth();
 
   if (!auth.user) {
+    console.log("Not signed in, redirecting to auth");
     return <Redirect href={"/(auth)"} />;
   }
 
