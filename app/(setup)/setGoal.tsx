@@ -1,33 +1,27 @@
-import React from "react";
-import { 
-  SafeAreaView, 
-  View, 
-  Text, 
-  StyleSheet 
-} from "react-native";
-import { useRouter, useLocalSearchParams } from "expo-router";
-import { useDerivedValue, useSharedValue } from "react-native-reanimated";
+import { SafeAreaView, View, Text, StyleSheet } from "react-native";
+import { useRouter, useLocalSearchParams, Redirect } from "expo-router";
+import { useSharedValue } from "react-native-reanimated";
 import { LinearGradient } from "expo-linear-gradient";
 
 import Button from "@/components/ui/Button";
 import { AnimatedCount } from "@/components/ui/wheel-picker/animated-count/animated-count";
 import { DraggableSlider } from "@/components/ui/wheel-picker/draggable-slider";
+import { setGymGoal, useAuth } from "@/lib/supabase";
 
 const LINES_AMOUNT = 7;
 
 export default function SetGoalScreen() {
   const router = useRouter();
   const { isEditing } = useLocalSearchParams<{ isEditing?: string }>();
+  const auth = useAuth();
 
-  // Reanimated shared values
-  const progress = useSharedValue(0);
-  const animatedNumber = useDerivedValue(() => {
-    return Math.ceil(progress.value * LINES_AMOUNT);
-  }, [progress]);
+  const daySelection = useSharedValue(0);
 
   const indicatorColor = useSharedValue("#22c55e");
 
   const handleContinue = () => {
+    setGymGoal(daySelection.value);
+
     if (isEditing) {
       // If editing from settings, show a reminder or do your logic
       // For now, we simply go back. Adjust as needed.
@@ -44,11 +38,15 @@ export default function SetGoalScreen() {
     ? "Keep in mind that editing your goal will reset your streak.\nHow many days per week do you want to work out?"
     : "How many days per week do you want to work out?";
 
+  if (typeof auth.gymGoal === "number") {
+    return <Redirect href="/(tabs)/leaderboard" />;
+  }
+
   return (
     <SafeAreaView style={styles.container}>
-      <LinearGradient 
+      <LinearGradient
         style={styles.card}
-        colors={['rgba(255, 255, 255, 0.03)', 'rgba(255, 255, 255, 0)']}
+        colors={["rgba(255, 255, 255, 0.03)", "rgba(255, 255, 255, 0)"]}
         locations={[0, 1]}
         start={{ x: 0, y: 0 }}
         end={{ x: 0, y: 1 }}
@@ -63,7 +61,7 @@ export default function SetGoalScreen() {
           {/* Main Content */}
           <View style={styles.mainContent}>
             <AnimatedCount
-              count={animatedNumber}
+              count={daySelection}
               maxDigits={10}
               textDigitWidth={80}
               textDigitHeight={130}
@@ -86,7 +84,7 @@ export default function SetGoalScreen() {
                 onProgressChange={(sliderProgress) => {
                   "worklet";
                   if (sliderProgress < 0) return;
-                  progress.value = sliderProgress;
+                  daySelection.value = Math.ceil(sliderProgress * LINES_AMOUNT);
                 }}
               />
             </View>
@@ -94,10 +92,7 @@ export default function SetGoalScreen() {
 
           {/* Footer */}
           <View style={styles.footer}>
-            <Button 
-              onPress={handleContinue}
-              buttonStyles={styles.button}
-            >
+            <Button onPress={handleContinue} buttonStyles={styles.button}>
               {isEditing ? "Save Changes" : "Continue"}
             </Button>
           </View>
@@ -122,11 +117,11 @@ const styles = StyleSheet.create({
   content: {
     flex: 1,
     padding: 20,
-    justifyContent: 'space-between',
+    justifyContent: "space-between",
     paddingTop: 65,
   },
   header: {
-    alignItems: 'center',
+    alignItems: "center",
     paddingTop: 20,
   },
   title: {
@@ -138,19 +133,19 @@ const styles = StyleSheet.create({
   },
   subtitle: {
     fontSize: 16,
-    fontFamily: 'Inter_500Medium',
-    color: '#a1a1aa',
-    textAlign: 'center',
+    fontFamily: "Inter_500Medium",
+    color: "#a1a1aa",
+    textAlign: "center",
     lineHeight: 24,
   },
   mainContent: {
     flex: 1,
-    justifyContent: 'center',
-    alignItems: 'center',
+    justifyContent: "center",
+    alignItems: "center",
   },
   daysLabel: {
     fontSize: 30,
-    fontFamily: 'Inter_700Bold',
+    fontFamily: "Inter_700Bold",
     color: "white",
     marginTop: 10,
     marginBottom: 20,
@@ -160,11 +155,11 @@ const styles = StyleSheet.create({
     alignItems: "center",
   },
   footer: {
-    marginTop: 'auto',
-    width: '100%',
+    marginTop: "auto",
+    width: "100%",
   },
   button: {
-    width: '100%',
-    backgroundColor: '#27272a',
+    width: "100%",
+    backgroundColor: "#27272a",
   },
 });

@@ -11,13 +11,19 @@ import { SUPABASE_URL, SUPABASE_ANON_KEY } from "./config";
 
 interface AuthContextType {
   user: User | undefined;
+  gymGoal: number | undefined;
 }
 
-const AuthContext = createContext<AuthContextType>({ user: undefined });
+const AuthContext = createContext<AuthContextType>({
+  user: undefined,
+  gymGoal: undefined,
+});
+
 const appRedirectUrl = makeRedirectUri({ path: "(tabs)/leaderboard" });
 
 export function AuthProvider({ children }: React.PropsWithChildren) {
   const [user, setUser] = useState<User | undefined>(undefined);
+  const [gymGoal, setGymGoal] = useState<number | undefined>(undefined);
 
   useEffect(() => {
     supabase.auth.getSession().then(({ data: { session } }) => {
@@ -28,13 +34,29 @@ export function AuthProvider({ children }: React.PropsWithChildren) {
       data: { subscription },
     } = supabase.auth.onAuthStateChange((_event, session) => {
       setUser(session?.user);
-    });
 
+      supabase.functions
+        .invoke("get_goal")
+        .then((response) => {
+          if (response.error) {
+            return;
+          }
+
+          setGymGoal(
+            typeof response.data.goal === "number"
+              ? response.data.goal
+              : undefined
+          );
+        })
+        .catch(console.error);
+    });
     return () => subscription.unsubscribe();
   }, []);
 
   return (
-    <AuthContext.Provider value={{ user }}>{children}</AuthContext.Provider>
+    <AuthContext.Provider value={{ user, gymGoal }}>
+      {children}
+    </AuthContext.Provider>
   );
 }
 
@@ -55,6 +77,12 @@ export const supabase = createClient(SUPABASE_URL, SUPABASE_ANON_KEY, {
   },
 });
 
+export async function setGymGoal(goal: number) {
+  supabase.functions.invoke("set_goal", {
+    body: JSON.stringify({ goal }),
+  });
+}
+
 export async function signInWithDiscord() {
   const { data, error } = await supabase.auth.signInWithOAuth({
     provider: "discord",
@@ -68,7 +96,6 @@ export async function signInWithDiscord() {
     throw error;
   }
 
-  console.log(data.url, appRedirectUrl);
   const authResult = await openAuthSessionAsync(data.url, appRedirectUrl, {
     showInRecents: true, // prevent browser from closing while temporarily switching to another app
   });
@@ -92,7 +119,6 @@ export async function signInWithDiscord() {
   });
 
   if (sessionResult.error) {
-    console.log(access_token, refresh_token, authResult.url);
     throw sessionResult.error;
   }
 }
