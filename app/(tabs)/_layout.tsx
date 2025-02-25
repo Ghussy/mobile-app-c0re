@@ -24,6 +24,7 @@ export default function TabsLayout() {
   }, []);
 
   if (shouldRedirect) {
+    console.log("User has not enrolled in any gyms- redirecting");
     return <Redirect href="/(setup)/setGym" />;
   }
 
