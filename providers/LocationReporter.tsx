@@ -1,8 +1,6 @@
 import { useEffect } from "react";
 
-import BackgroundGeolocation, {
-  Coords,
-} from "react-native-background-geolocation";
+import BackgroundGeolocation from "react-native-background-geolocation";
 
 import { lastSync, logLocation } from "@/lib/sqlite";
 import { supabase } from "@/lib/supabase";
@@ -30,7 +28,7 @@ export function LocationReporter() {
       enableHeadless: true,
     }).then(() => {
       BackgroundGeolocation.start();
-      BackgroundGeolocation.registerHeadlessTask(async (event) => {
+      BackgroundGeolocation.registerHeadlessTask(async () => {
         try {
           const { coords } = await BackgroundGeolocation.getCurrentPosition({
             persist: false,
