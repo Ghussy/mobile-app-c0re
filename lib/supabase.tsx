@@ -11,24 +11,19 @@ import { SUPABASE_URL, SUPABASE_ANON_KEY } from "./config";
 
 interface AuthContextType {
   user: User | undefined;
-  goalInfo: GymGoalInfo | undefined;
-}
-
-interface GymGoalInfo {
-  value: number;
-  set: (goal: number) => void;
+  gymGoal: number | undefined;
 }
 
 const AuthContext = createContext<AuthContextType>({
   user: undefined,
-  goalInfo: undefined,
+  gymGoal: undefined,
 });
 
 const appRedirectUrl = makeRedirectUri({ path: "(tabs)/leaderboard" });
 
 export function AuthProvider({ children }: React.PropsWithChildren) {
   const [user, setUser] = useState<User | undefined>(undefined);
-  const [goalInfo, setGoalInfo] = useState<GymGoalInfo | undefined>(undefined);
+  const [gymGoal, setGymGoal] = useState<number | undefined>(undefined);
 
   useEffect(() => {
     supabase.auth.getSession().then(({ data: { session } }) => {
@@ -39,35 +34,27 @@ export function AuthProvider({ children }: React.PropsWithChildren) {
       data: { subscription },
     } = supabase.auth.onAuthStateChange((_event, session) => {
       setUser(session?.user);
+
+      supabase.functions
+        .invoke("get_goal")
+        .then((response) => {
+          if (response.error) {
+            return;
+          }
+
+          setGymGoal(
+            typeof response.data.goal === "number"
+              ? response.data.goal
+              : undefined
+          );
+        })
+        .catch(console.error);
     });
-
-    supabase.functions
-      .invoke("get_goal")
-      .then((response) => {
-        if (response.error) {
-          console.error(response.error);
-          return;
-        }
-
-        const goal = (response.data.goal || 0) as number | undefined;
-        if (typeof goal !== "undefined") {
-          setGoalInfo({
-            value: goal,
-            set: (newGoal) => {
-              supabase.functions.invoke("set_goal", {
-                body: newGoal.toString(),
-              });
-            },
-          });
-        }
-      })
-      .catch(console.error);
-
     return () => subscription.unsubscribe();
   }, []);
 
   return (
-    <AuthContext.Provider value={{ user, goalInfo }}>
+    <AuthContext.Provider value={{ user, gymGoal }}>
       {children}
     </AuthContext.Provider>
   );
@@ -90,6 +77,12 @@ export const supabase = createClient(SUPABASE_URL, SUPABASE_ANON_KEY, {
   },
 });
 
+export async function setGymGoal(goal: number) {
+  supabase.functions.invoke("set_goal", {
+    body: JSON.stringify({ goal }),
+  });
+}
+
 export async function signInWithDiscord() {
   const { data, error } = await supabase.auth.signInWithOAuth({
     provider: "discord",
@@ -103,7 +96,6 @@ export async function signInWithDiscord() {
     throw error;
   }
 
-  console.log(data.url, appRedirectUrl);
   const authResult = await openAuthSessionAsync(data.url, appRedirectUrl, {
     showInRecents: true, // prevent browser from closing while temporarily switching to another app
   });
@@ -127,7 +119,6 @@ export async function signInWithDiscord() {
   });
 
   if (sessionResult.error) {
-    console.log(access_token, refresh_token, authResult.url);
     throw sessionResult.error;
   }
 }

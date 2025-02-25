@@ -1,6 +1,6 @@
 import { useState } from "react";
 import { SafeAreaView, View, Text, StyleSheet } from "react-native";
-import { useRouter, useLocalSearchParams } from "expo-router";
+import { useRouter, useLocalSearchParams, Redirect } from "expo-router";
 import {
   runOnJS,
   useAnimatedReaction,
@@ -11,7 +11,7 @@ import { LinearGradient } from "expo-linear-gradient";
 import Button from "@/components/ui/Button";
 import { AnimatedCount } from "@/components/ui/wheel-picker/animated-count/animated-count";
 import { DraggableSlider } from "@/components/ui/wheel-picker/draggable-slider";
-import { useAuth } from "@/lib/supabase";
+import { setGymGoal, useAuth } from "@/lib/supabase";
 
 const LINES_AMOUNT = 7;
 const API_UDPATE_DEBOUNCE = 500;
@@ -28,7 +28,7 @@ export default function SetGoalScreen() {
     setFetchTimeout((timeout) => {
       clearTimeout(timeout);
       return setTimeout(() => {
-        auth.goalInfo?.set(days);
+        setGymGoal(days);
       }, API_UDPATE_DEBOUNCE);
     });
   }
@@ -59,6 +59,10 @@ export default function SetGoalScreen() {
   const subtitleText = isEditing
     ? "Keep in mind that editing your goal will reset your streak.\nHow many days per week do you want to work out?"
     : "How many days per week do you want to work out?";
+
+  if (typeof auth.gymGoal === "number") {
+    return <Redirect href="/(tabs)/leaderboard" />;
+  }
 
   return (
     <SafeAreaView style={styles.container}>
