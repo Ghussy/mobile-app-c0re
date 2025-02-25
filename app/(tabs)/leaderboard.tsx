@@ -7,6 +7,8 @@ import {
   Circle,
   vec,
 } from "@shopify/react-native-skia";
+import { useEffect, useState } from "react";
+import { supabase } from "@/lib/supabase";
 
 type LeaderboardEntry = {
   rank: number;
@@ -15,6 +17,7 @@ type LeaderboardEntry = {
   score: number;
 };
 
+// Fallback dummy data in case the API call fails
 const dummyData: LeaderboardEntry[] = [
   { rank: 1, name: "Richard Grover", discord: "rirard", score: 4 },
   { rank: 2, name: "Khayden", discord: "Husssy", score: 3 },
@@ -29,6 +32,59 @@ const dummyData: LeaderboardEntry[] = [
 export default function LeaderboardScreen() {
   const windowWidth = Dimensions.get("window").width;
   const topSectionHeight = Dimensions.get("window").height * 0.33;
+  const [leaderboardData, setLeaderboardData] =
+    useState<LeaderboardEntry[]>(dummyData);
+  const [isLoading, setIsLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
+  const [totalParticipants, setTotalParticipants] = useState<number>(12);
+
+  useEffect(() => {
+    fetchLeaderboardData();
+  }, []);
+
+  const fetchLeaderboardData = async () => {
+    try {
+      setIsLoading(true);
+      setError(null);
+
+      // Call the Supabase Edge Function
+      const { data, error } = await supabase.functions.invoke("leaderboard", {
+        // You can pass parameters if your function needs them
+        body: {
+          limit: 20,
+          // Add any other parameters your function expects
+        },
+      });
+
+      if (error) {
+        console.error("Error calling leaderboard function:", error);
+        setError("Failed to load leaderboard data");
+        return;
+      }
+
+      // Process the data based on the actual format returned by the Edge Function
+      if (data && Array.isArray(data)) {
+        // Transform the data to match our LeaderboardEntry type
+        const transformedData: LeaderboardEntry[] = data.map((item: any) => ({
+          rank: item.placment, // Note the spelling 'placment' from the API
+          name: item.name,
+          discord: item.discord,
+          score: item.week_streak, // Using week_streak as the score
+        }));
+
+        setLeaderboardData(transformedData);
+        setTotalParticipants(data.length);
+      } else {
+        console.warn("Unexpected data format:", data);
+        setError("Received invalid data format");
+      }
+    } catch (err) {
+      console.error("Exception when fetching leaderboard:", err);
+      setError("An unexpected error occurred");
+    } finally {
+      setIsLoading(false);
+    }
+  };
 
   return (
     <View style={styles.container}>
@@ -43,7 +99,7 @@ export default function LeaderboardScreen() {
           </Circle>
         </Canvas>
         <View style={styles.numberContainer}>
-          <SkiaNumber text="12" size={175} />
+          <SkiaNumber text={totalParticipants.toString()} size={175} />
         </View>
       </View>
 
@@ -55,46 +111,62 @@ export default function LeaderboardScreen() {
       >
         <View style={styles.card}>
           <View style={styles.cardHeader}>
-            <Text style={styles.title}>Hiking</Text>
+            <Text style={styles.title}>Workouts</Text>
             <View style={styles.subtitle}>
               <Text style={styles.icon}>📍</Text>
               <Text style={styles.location}>The Sandwich</Text>
             </View>
           </View>
 
-          <ScrollView style={styles.scrollView}>
-            {dummyData.map((entry) => (
-              <View key={entry.rank} style={styles.row}>
-                <View style={styles.rankContainer}>
+          {isLoading ? (
+            <View style={styles.loadingContainer}>
+              <Text style={styles.loadingText}>Loading leaderboard...</Text>
+            </View>
+          ) : error ? (
+            <View style={styles.errorContainer}>
+              <Text style={styles.errorText}>{error}</Text>
+              <Text style={styles.retryText} onPress={fetchLeaderboardData}>
+                Tap to retry
+              </Text>
+            </View>
+          ) : (
+            <ScrollView
+              style={styles.scrollView}
+              showsVerticalScrollIndicator={false}
+            >
+              {leaderboardData.map((entry) => (
+                <View key={entry.rank} style={styles.row}>
+                  <View style={styles.rankContainer}>
+                    <Text
+                      style={[
+                        styles.rank,
+                        entry.rank <= 3 ? styles.topRank : styles.normalRank,
+                      ]}
+                    >
+                      {entry.rank}
+                    </Text>
+                  </View>
+
+                  <View style={styles.userInfo}>
+                    <Text style={styles.name}>{entry.name}</Text>
+                    <View style={styles.discordContainer}>
+                      <Text style={styles.discordIcon}>🎮</Text>
+                      <Text style={styles.discord}>{entry.discord}</Text>
+                    </View>
+                  </View>
+
                   <Text
                     style={[
-                      styles.rank,
-                      entry.rank <= 3 ? styles.topRank : styles.normalRank,
+                      styles.score,
+                      entry.rank === 1 ? styles.topScore : styles.normalScore,
                     ]}
                   >
-                    {entry.rank}
+                    {entry.score}
                   </Text>
                 </View>
-
-                <View style={styles.userInfo}>
-                  <Text style={styles.name}>{entry.name}</Text>
-                  <View style={styles.discordContainer}>
-                    <Text style={styles.discordIcon}>🎮</Text>
-                    <Text style={styles.discord}>{entry.discord}</Text>
-                  </View>
-                </View>
-
-                <Text
-                  style={[
-                    styles.score,
-                    entry.rank === 1 ? styles.topScore : styles.normalScore,
-                  ]}
-                >
-                  {entry.score}
-                </Text>
-              </View>
-            ))}
-          </ScrollView>
+              ))}
+            </ScrollView>
+          )}
         </View>
       </LinearGradient>
     </View>
@@ -223,5 +295,29 @@ const styles = StyleSheet.create({
   },
   normalScore: {
     color: "#a1a1aa",
+  },
+  loadingContainer: {
+    flex: 1,
+    justifyContent: "center",
+    alignItems: "center",
+  },
+  loadingText: {
+    color: "#a1a1aa",
+    fontSize: 16,
+  },
+  errorContainer: {
+    flex: 1,
+    justifyContent: "center",
+    alignItems: "center",
+  },
+  errorText: {
+    color: "#ef4444",
+    fontSize: 16,
+    marginBottom: 12,
+  },
+  retryText: {
+    color: "#a1a1aa",
+    fontSize: 14,
+    textDecorationLine: "underline",
   },
 });
