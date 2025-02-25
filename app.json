@@ -2,10 +2,12 @@
   "expo": {
     "name": "c0re",
     "slug": "c0re",
+    "name": "c0re",
+    "slug": "c0re",
     "version": "1.0.0",
     "orientation": "portrait",
     "icon": "./assets/images/logo.png",
-    "scheme": "myapp",
+    "scheme": "com.c0re.app",
     "userInterfaceStyle": "automatic",
     "newArchEnabled": true,
     "ios": {

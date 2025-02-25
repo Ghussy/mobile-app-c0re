@@ -32,8 +32,8 @@
       <dict>
         <key>CFBundleURLSchemes</key>
         <array>
-          <string>myapp</string>
-          <string>com.c0re</string>
+          <string>com.c0re.app</string>
+          <string>com.c0re.app</string>
         </array>
       </dict>
     </array>

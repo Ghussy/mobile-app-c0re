@@ -93,9 +93,9 @@ Project background_fetch = project(':react-native-background-fetch')
     buildToolsVersion rootProject.ext.buildToolsVersion
     compileSdk rootProject.ext.compileSdkVersion
 
-    namespace 'com.c0re'
+    namespace 'com.c0re.app'
     defaultConfig {
-        applicationId 'com.c0re'
+        applicationId 'com.c0re.app'
         minSdkVersion rootProject.ext.minSdkVersion
         targetSdkVersion rootProject.ext.targetSdkVersion
         versionCode 1

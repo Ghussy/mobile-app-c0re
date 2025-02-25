@@ -1,21 +1,31 @@
 import { Tabs } from "expo-router";
-import { Ionicons } from '@expo/vector-icons';
+import { Ionicons } from "@expo/vector-icons";
+
+import { Redirect } from "expo-router";
+import { useAuth } from "@/lib/supabase";
 
 export default function TabsLayout() {
+  const auth = useAuth();
+
+  if (!auth.user) {
+    return <Redirect href={"/(auth)"} />;
+  }
+
   return (
     <Tabs
       screenOptions={{
-        tabBarStyle: { 
-          backgroundColor: '#09090b',
-          borderTopColor: 'rgba(255, 255, 255, 0.1)',
+        tabBarStyle: {
+          backgroundColor: "#09090b",
+          borderTopColor: "rgba(255, 255, 255, 0.1)",
         },
-        tabBarActiveTintColor: 'white',
-        tabBarInactiveTintColor: '#71717a',
+        tabBarActiveTintColor: "white",
+        tabBarInactiveTintColor: "#71717a",
         headerStyle: {
-          backgroundColor: '#09090b',
+          backgroundColor: "#09090b",
         },
-        headerTintColor: 'white',
+        headerTintColor: "white",
       }}
+      initialRouteName="leaderboard"
     >
       <Tabs.Screen
         name="leaderboard"

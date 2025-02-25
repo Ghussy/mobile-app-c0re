@@ -1,4 +1,4 @@
-package com.c0re
+package com.c0re.app
 
 import android.app.Application
 import android.content.res.Configuration
