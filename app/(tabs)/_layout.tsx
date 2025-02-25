@@ -3,6 +3,8 @@ import { Ionicons } from "@expo/vector-icons";
 
 import { Redirect } from "expo-router";
 import { useAuth } from "@/lib/supabase";
+import { enrolledGyms } from "@/lib/sqlite";
+import { useEffect, useState } from "react";
 
 export default function TabsLayout() {
   const auth = useAuth();
@@ -10,6 +12,19 @@ export default function TabsLayout() {
   if (!auth.user) {
     console.log("Not signed in, redirecting to auth");
     return <Redirect href={"/(auth)"} />;
+  }
+
+  const [shouldRedirect, setRedirect] = useState(false);
+  useEffect(() => {
+    enrolledGyms().then((gyms) => {
+      if (gyms.length === 0) {
+        setRedirect(true);
+      }
+    });
+  }, []);
+
+  if (shouldRedirect) {
+    return <Redirect href="/(setup)/setGym" />;
   }
 
   return (
