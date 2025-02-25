@@ -8,3 +8,5 @@ expo-env.d.ts
 .expo/
 android/local.properties
 .env
+/android/
+/ios/

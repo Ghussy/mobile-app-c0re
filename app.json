@@ -10,7 +10,7 @@
     "newArchEnabled": true,
     "ios": {
       "supportsTablet": true,
-      "bundleIdentifier": "com.c0re",
+      "bundleIdentifier": "com.c0re.app",
       "config": {},
       "infoPlist": {
         "NSLocationAlwaysAndWhenInUseUsageDescription": "This app requires location in the background 🦍",
@@ -28,7 +28,7 @@
         "foregroundImage": "./assets/images/logo.png",
         "backgroundColor": "#ffffff"
       },
-      "package": "com.c0re",
+      "package": "com.c0re.app",
       "config": {}
     },
     "web": {
