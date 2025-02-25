@@ -1,23 +1,25 @@
-import { useEffect, useState } from "react";
+import React, { useEffect } from "react";
 import { SafeAreaView, View, Text, StyleSheet } from "react-native";
 import { useRouter } from "expo-router";
 import { LinearGradient } from "expo-linear-gradient";
 import Button from "@/components/ui/Button";
 import ToggleCard from "@/components/ui/toggle-card";
+import { pickPlace } from "react-native-place-picker";
+import { getCurrentLocation } from "@/providers/LocationReporter";
 import { enrollGym, unenrollGym, enrolledGyms, Gym } from "@/lib/sqlite";
 
 export default function SetGymScreen() {
   const router = useRouter();
-  const [selectedGyms, setSelectedGyms] = useState<Gym[]>([]);
+  const [selectedGyms, setSelectedGyms] = React.useState<Gym[]>([]);
 
   useEffect(() => {
     enrolledGyms().then(setSelectedGyms);
   }, []);
 
-  function enrolledInBuiltinGym(name: string) {
+  function enrolledInGym(name: string, builtin: boolean = true) {
     return (
       typeof selectedGyms.find(
-        (gym) => gym.name === name && gym.builtin === true,
+        (gym) => gym.name === name && gym.builtin === builtin
       ) !== "undefined"
     );
   }
@@ -26,11 +28,12 @@ export default function SetGymScreen() {
     name: string,
     latitude: number,
     longitude: number,
+    builtin: boolean = true
   ) => {
-    if (enrolledInBuiltinGym(name)) {
-      await unenrollGym(name, true);
+    if (enrolledInGym(name, builtin)) {
+      await unenrollGym(name, builtin);
     } else {
-      await enrollGym(name, latitude, longitude, true);
+      await enrollGym(name, latitude, longitude, builtin);
     }
 
     setSelectedGyms(await enrolledGyms());
@@ -57,27 +60,100 @@ export default function SetGymScreen() {
             <ToggleCard
               name="Vasa"
               icon="navigation"
-              isSelected={enrolledInBuiltinGym("vasa")}
-              onToggle={() => toggleGym("vasa", 0, 0)}
+              isSelected={enrolledInGym("Vasa")}
+              onToggle={() => toggleGym("Vasa", 0, 0)}
             />
             <ToggleCard
               name="EOS"
               icon="navigation"
-              isSelected={enrolledInBuiltinGym("eos")}
-              onToggle={() => toggleGym("eos", 0, 0)}
+              isSelected={enrolledInGym("EOS")}
+              onToggle={() => toggleGym("EOS", 0, 0)}
             />
             <ToggleCard
               name="Planet Fitness"
               icon="navigation"
-              isSelected={enrolledInBuiltinGym("planet")}
-              onToggle={() => toggleGym("planet", 0, 0)}
+              isSelected={enrolledInGym("Planet Fitness")}
+              onToggle={() => toggleGym("Planet Fitness", 0, 0)}
             />
+
+            {/* Custom Selected Gyms */}
+            {selectedGyms
+              .filter((gym) => !gym.builtin)
+              .map((gym) => (
+                <ToggleCard
+                  key={gym.name}
+                  name={gym.name}
+                  subtitle={gym.address || `${gym.latitude}, ${gym.longitude}`}
+                  icon="navigation"
+                  variant="delete"
+                  onDelete={() => unenrollGym(gym.name, false)}
+                  isSelected={true}
+                  onToggle={() =>
+                    toggleGym(gym.name, gym.latitude, gym.longitude, false)
+                  }
+                />
+              ))}
+
             <ToggleCard
               name="Add Gym"
               icon="plus"
               variant="add"
-              onToggle={() => {
-                /* Handle add gym */
+              onToggle={async () => {
+                try {
+                  const { coords } = await getCurrentLocation();
+
+                  pickPlace({
+                    presentationStyle: "fullscreen",
+                    title: "Add Your Gym",
+                    searchPlaceholder: "Search for your gym...",
+                    color: "#27272a",
+                    contrastColor: "#ffffff",
+                    enableUserLocation: true,
+                    enableGeocoding: true,
+                    enableSearch: true,
+                    enableLargeTitle: true,
+                    initialCoordinates: {
+                      latitude: coords.latitude,
+                      longitude: coords.longitude,
+                    },
+                    rejectOnCancel: false,
+                  })
+                    .then(async (result) => {
+                      if (result && result.address) {
+                        console.log(
+                          "Full place result:",
+                          JSON.stringify(result, null, 2)
+                        );
+                        console.log(
+                          "Address object:",
+                          JSON.stringify(result.address, null, 2)
+                        );
+
+                        const gymName =
+                          result.address.name || result.address.streetName;
+                        const gymAddress = result.address.streetName;
+
+                        console.log("Using name:", gymName);
+                        console.log("Using address:", gymAddress);
+
+                        await enrollGym(
+                          gymName,
+                          result.coordinate.latitude,
+                          result.coordinate.longitude,
+                          false,
+                          gymAddress
+                        );
+                        setSelectedGyms(await enrolledGyms());
+                      }
+                    })
+                    .catch((error) => {
+                      if (!error.toString().includes("cancel")) {
+                        console.error(error);
+                      }
+                    });
+                } catch (error) {
+                  console.error("Error getting location:", error);
+                }
               }}
             />
           </View>

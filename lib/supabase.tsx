@@ -56,6 +56,8 @@ export const supabase = createClient(SUPABASE_URL, SUPABASE_ANON_KEY, {
 });
 
 export async function signInWithDiscord() {
+  console.log("Starting Discord sign-in process");
+  
   const { data, error } = await supabase.auth.signInWithOAuth({
     provider: "discord",
     options: {
@@ -65,35 +67,59 @@ export async function signInWithDiscord() {
   });
 
   if (error) {
+    console.error("Error initiating OAuth:", error);
     throw error;
   }
 
-  console.log(data.url, appRedirectUrl);
-  const authResult = await openAuthSessionAsync(data.url, appRedirectUrl, {
-    showInRecents: true, // prevent browser from closing while temporarily switching to another app
-  });
+  console.log("OAuth URL generated:", data.url);
+  console.log("Redirect URL:", appRedirectUrl);
+  
+  try {
+    const authResult = await openAuthSessionAsync(data.url, appRedirectUrl, {
+      showInRecents: true,
+      preferEphemeralSession: false,
+    });
 
-  if (authResult.type !== "success") {
-    throw new Error(
-      "authentication " + authResult.type + ": " + JSON.stringify(authResult)
-    );
-  }
+    console.log("Auth result type:", authResult.type);
+    
+    if (authResult.type !== "success") {
+      console.error("Authentication failed:", authResult);
+      throw new Error(
+        "Authentication " + authResult.type + ": " + JSON.stringify(authResult)
+      );
+    }
 
-  const queryParamsResult = getQueryParams(authResult.url);
+    console.log("Auth successful, processing URL:", authResult.url);
+    const queryParamsResult = getQueryParams(authResult.url);
 
-  if (queryParamsResult.errorCode) {
-    throw new Error(queryParamsResult.errorCode);
-  }
+    if (queryParamsResult.errorCode) {
+      console.error("Error in query params:", queryParamsResult);
+      throw new Error(queryParamsResult.errorCode);
+    }
 
-  const { access_token, refresh_token } = queryParamsResult.params;
-  const sessionResult = await supabase.auth.setSession({
-    access_token,
-    refresh_token,
-  });
+    if (!queryParamsResult.params.access_token || !queryParamsResult.params.refresh_token) {
+      console.error("Missing tokens in response:", queryParamsResult);
+      throw new Error("Missing authentication tokens in response");
+    }
 
-  if (sessionResult.error) {
-    console.log(access_token, refresh_token, authResult.url);
-    throw sessionResult.error;
+    const { access_token, refresh_token } = queryParamsResult.params;
+    console.log("Setting session with tokens");
+    
+    const sessionResult = await supabase.auth.setSession({
+      access_token,
+      refresh_token,
+    });
+
+    if (sessionResult.error) {
+      console.error("Error setting session:", sessionResult.error);
+      throw sessionResult.error;
+    }
+    
+    console.log("Authentication completed successfully");
+    return sessionResult;
+  } catch (e) {
+    console.error("Exception during authentication:", e);
+    throw e;
   }
 }
 

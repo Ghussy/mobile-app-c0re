@@ -2,6 +2,8 @@
   "expo": {
     "name": "c0re",
     "slug": "c0re",
+    "name": "c0re",
+    "slug": "c0re",
     "version": "1.0.0",
     "orientation": "portrait",
     "icon": "./assets/images/logo.png",
@@ -11,6 +13,7 @@
     "ios": {
       "supportsTablet": true,
       "bundleIdentifier": "com.c0re.app",
+      "config": {},
       "infoPlist": {
         "NSLocationAlwaysAndWhenInUseUsageDescription": "This app requires location in the background 🦍",
         "NSLocationWhenInUseUsageDescription": "This app requires location while in use 🦍",
@@ -27,7 +30,8 @@
         "foregroundImage": "./assets/images/logo.png",
         "backgroundColor": "#ffffff"
       },
-      "package": "com.c0re.app"
+      "package": "com.c0re.app",
+      "config": {}
     },
     "web": {
       "bundler": "metro",
@@ -59,6 +63,12 @@
     ],
     "experiments": {
       "typedRoutes": true
-    }
+    },
+    "extra": {
+      "router": {
+        "origin": false
+      }
+    },
+    "owner": "ghuscroft"
   }
 }

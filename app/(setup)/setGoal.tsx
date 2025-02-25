@@ -1,10 +1,5 @@
 import React from "react";
-import { 
-  SafeAreaView, 
-  View, 
-  Text, 
-  StyleSheet 
-} from "react-native";
+import { SafeAreaView, View, Text, StyleSheet } from "react-native";
 import { useRouter, useLocalSearchParams } from "expo-router";
 import { useDerivedValue, useSharedValue } from "react-native-reanimated";
 import { LinearGradient } from "expo-linear-gradient";
@@ -46,9 +41,9 @@ export default function SetGoalScreen() {
 
   return (
     <SafeAreaView style={styles.container}>
-      <LinearGradient 
+      <LinearGradient
         style={styles.card}
-        colors={['rgba(255, 255, 255, 0.03)', 'rgba(255, 255, 255, 0)']}
+        colors={["rgba(255, 255, 255, 0.03)", "rgba(255, 255, 255, 0)"]}
         locations={[0, 1]}
         start={{ x: 0, y: 0 }}
         end={{ x: 0, y: 1 }}
@@ -94,10 +89,7 @@ export default function SetGoalScreen() {
 
           {/* Footer */}
           <View style={styles.footer}>
-            <Button 
-              onPress={handleContinue}
-              buttonStyles={styles.button}
-            >
+            <Button onPress={handleContinue} buttonStyles={styles.button}>
               {isEditing ? "Save Changes" : "Continue"}
             </Button>
           </View>
@@ -122,11 +114,11 @@ const styles = StyleSheet.create({
   content: {
     flex: 1,
     padding: 20,
-    justifyContent: 'space-between',
+    justifyContent: "space-between",
     paddingTop: 65,
   },
   header: {
-    alignItems: 'center',
+    alignItems: "center",
     paddingTop: 20,
   },
   title: {
@@ -138,19 +130,19 @@ const styles = StyleSheet.create({
   },
   subtitle: {
     fontSize: 16,
-    fontFamily: 'Inter_500Medium',
-    color: '#a1a1aa',
-    textAlign: 'center',
+    fontFamily: "Inter_500Medium",
+    color: "#a1a1aa",
+    textAlign: "center",
     lineHeight: 24,
   },
   mainContent: {
     flex: 1,
-    justifyContent: 'center',
-    alignItems: 'center',
+    justifyContent: "center",
+    alignItems: "center",
   },
   daysLabel: {
     fontSize: 30,
-    fontFamily: 'Inter_700Bold',
+    fontFamily: "Inter_700Bold",
     color: "white",
     marginTop: 10,
     marginBottom: 20,
@@ -160,11 +152,11 @@ const styles = StyleSheet.create({
     alignItems: "center",
   },
   footer: {
-    marginTop: 'auto',
-    width: '100%',
+    marginTop: "auto",
+    width: "100%",
   },
   button: {
-    width: '100%',
-    backgroundColor: '#27272a',
+    width: "100%",
+    backgroundColor: "#27272a",
   },
 });
