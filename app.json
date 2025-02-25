@@ -6,11 +6,16 @@
     "slug": "c0re",
     "version": "1.0.0",
     "orientation": "portrait",
-    "icon": "./assets/images/logo.png",
+    "icon": "./assets/icons/Any.png",
     "scheme": "com.c0re.app",
     "userInterfaceStyle": "automatic",
     "newArchEnabled": true,
     "ios": {
+      "icon": {
+        "tinted": "./assets/icons/tinted.png",
+        "dark": "./assets/icons/Any.png",
+        "light": "./assets/icons/Any.png"
+      },
       "supportsTablet": true,
       "bundleIdentifier": "com.c0re.app",
       "config": {},
@@ -27,8 +32,8 @@
     },
     "android": {
       "adaptiveIcon": {
-        "foregroundImage": "./assets/images/logo.png",
-        "backgroundColor": "#ffffff"
+        "foregroundImage": "./assets/icons/adaptive-icon.png",
+        "backgroundColor": "#000000"
       },
       "package": "com.c0re.app",
       "config": {}
@@ -43,10 +48,10 @@
       [
         "expo-splash-screen",
         {
-          "image": "./assets/images/logo.png",
+          "image": "./assets/icons/splash-icon-dark.png",
           "imageWidth": 200,
           "resizeMode": "contain",
-          "backgroundColor": "#ffffff"
+          "backgroundColor": "#000000"
         }
       ],
       ["react-native-background-geolocation", {}],
