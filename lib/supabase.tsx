@@ -41,20 +41,27 @@ export function AuthProvider({ children }: React.PropsWithChildren) {
       setUser(session?.user);
     });
 
-    supabase.functions.invoke("get-goal").then((response) => {
-      if (response.error) {
-        console.error(response.error);
-        return;
-      }
+    supabase.functions
+      .invoke("get_goal")
+      .then((response) => {
+        if (response.error) {
+          console.error(response.error);
+          return;
+        }
 
-      const goal = response.data.goal as number;
-      setGoalInfo({
-        value: goal,
-        set: (newGoal) => {
-          supabase.functions.invoke("set-goal", { body: newGoal.toString() });
-        },
-      });
-    });
+        const goal = (response.data.goal || 0) as number | undefined;
+        if (typeof goal !== "undefined") {
+          setGoalInfo({
+            value: goal,
+            set: (newGoal) => {
+              supabase.functions.invoke("set_goal", {
+                body: newGoal.toString(),
+              });
+            },
+          });
+        }
+      })
+      .catch(console.error);
 
     return () => subscription.unsubscribe();
   }, []);
