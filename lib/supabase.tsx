@@ -42,6 +42,8 @@ export function AuthProvider({ children }: React.PropsWithChildren) {
             return;
           }
 
+          console.log("Gym goal:", response.data.goal);
+
           setGymGoal(
             typeof response.data.goal === "number"
               ? response.data.goal
@@ -85,7 +87,7 @@ export async function setGymGoal(goal: number) {
 
 export async function signInWithDiscord() {
   console.log("Starting Discord sign-in process");
-  
+
   const { data, error } = await supabase.auth.signInWithOAuth({
     provider: "discord",
     options: {
@@ -109,26 +111,29 @@ export async function signInWithDiscord() {
     );
   }
 
-    console.log("Auth successful, processing URL:", authResult.url);
-    const queryParamsResult = getQueryParams(authResult.url);
+  console.log("Auth successful, processing URL:", authResult.url);
+  const queryParamsResult = getQueryParams(authResult.url);
 
-    if (queryParamsResult.errorCode) {
-      console.error("Error in query params:", queryParamsResult);
-      throw new Error(queryParamsResult.errorCode);
-    }
+  if (queryParamsResult.errorCode) {
+    console.error("Error in query params:", queryParamsResult);
+    throw new Error(queryParamsResult.errorCode);
+  }
 
-    if (!queryParamsResult.params.access_token || !queryParamsResult.params.refresh_token) {
-      console.error("Missing tokens in response:", queryParamsResult);
-      throw new Error("Missing authentication tokens in response");
-    }
+  if (
+    !queryParamsResult.params.access_token ||
+    !queryParamsResult.params.refresh_token
+  ) {
+    console.error("Missing tokens in response:", queryParamsResult);
+    throw new Error("Missing authentication tokens in response");
+  }
 
-    const { access_token, refresh_token } = queryParamsResult.params;
-    console.log("Setting session with tokens");
-    
-    const sessionResult = await supabase.auth.setSession({
-      access_token,
-      refresh_token,
-    });
+  const { access_token, refresh_token } = queryParamsResult.params;
+  console.log("Setting session with tokens");
+
+  const sessionResult = await supabase.auth.setSession({
+    access_token,
+    refresh_token,
+  });
 
   if (sessionResult.error) {
     throw sessionResult.error;

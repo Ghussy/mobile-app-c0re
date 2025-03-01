@@ -73,7 +73,6 @@ export default function LeaderboardScreen() {
             score: item.week_streak, // Using week_streak as the score
           };
 
-          console.log("TRANSFORMED ENTRY:", JSON.stringify(entry, null, 2));
           return entry;
         });
 
