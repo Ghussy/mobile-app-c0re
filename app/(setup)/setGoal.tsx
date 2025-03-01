@@ -1,28 +1,31 @@
-import React from "react";
 import { SafeAreaView, View, Text, StyleSheet } from "react-native";
-import { useRouter, useLocalSearchParams } from "expo-router";
-import { useDerivedValue, useSharedValue } from "react-native-reanimated";
+import { useRouter, useLocalSearchParams, Redirect } from "expo-router";
+import { useSharedValue } from "react-native-reanimated";
 import { LinearGradient } from "expo-linear-gradient";
 
 import Button from "@/components/ui/Button";
 import { AnimatedCount } from "@/components/ui/wheel-picker/animated-count/animated-count";
 import { DraggableSlider } from "@/components/ui/wheel-picker/draggable-slider";
+import { setGymGoal, useAuth } from "@/lib/supabase";
 
 const LINES_AMOUNT = 7;
 
 export default function SetGoalScreen() {
   const router = useRouter();
   const { isEditing } = useLocalSearchParams<{ isEditing?: string }>();
+  const auth = useAuth();
 
-  // Reanimated shared values
-  const progress = useSharedValue(0);
-  const animatedNumber = useDerivedValue(() => {
-    return Math.ceil(progress.value * LINES_AMOUNT);
-  }, [progress]);
+  const daySelection = useSharedValue(0);
 
   const indicatorColor = useSharedValue("#22c55e");
 
+  console.log(auth.gymGoal);
+
+
   const handleContinue = () => {
+    setGymGoal(daySelection.value);
+    
+
     if (isEditing) {
       // If editing from settings, show a reminder or do your logic
       // For now, we simply go back. Adjust as needed.
@@ -38,6 +41,10 @@ export default function SetGoalScreen() {
   const subtitleText = isEditing
     ? "Keep in mind that editing your goal will reset your streak.\nHow many days per week do you want to work out?"
     : "How many days per week do you want to work out?";
+
+  if (typeof auth.gymGoal === "number") {
+    return <Redirect href="/(tabs)/leaderboard" />;
+  }
 
   return (
     <SafeAreaView style={styles.container}>
@@ -58,7 +65,7 @@ export default function SetGoalScreen() {
           {/* Main Content */}
           <View style={styles.mainContent}>
             <AnimatedCount
-              count={animatedNumber}
+              count={daySelection}
               maxDigits={10}
               textDigitWidth={80}
               textDigitHeight={130}
@@ -81,7 +88,7 @@ export default function SetGoalScreen() {
                 onProgressChange={(sliderProgress) => {
                   "worklet";
                   if (sliderProgress < 0) return;
-                  progress.value = sliderProgress;
+                  daySelection.value = Math.ceil(sliderProgress * LINES_AMOUNT);
                 }}
               />
             </View>

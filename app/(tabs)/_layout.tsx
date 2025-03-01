@@ -14,6 +14,11 @@ export default function TabsLayout() {
     return <Redirect href={"/(auth)"} />;
   }
 
+  if (typeof auth.gymGoal === "undefined") {
+    console.log("No gym goal, redirecting");
+    return <Redirect href={"/(setup)/setGoal"} />;
+  }
+
   const [shouldRedirect, setRedirect] = useState(false);
   useEffect(() => {
     enrolledGyms().then((gyms) => {

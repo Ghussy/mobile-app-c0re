@@ -11,13 +11,19 @@ import { SUPABASE_URL, SUPABASE_ANON_KEY } from "./config";
 
 interface AuthContextType {
   user: User | undefined;
+  gymGoal: number | undefined;
 }
 
-const AuthContext = createContext<AuthContextType>({ user: undefined });
+const AuthContext = createContext<AuthContextType>({
+  user: undefined,
+  gymGoal: undefined,
+});
+
 const appRedirectUrl = makeRedirectUri({ path: "(tabs)/leaderboard" });
 
 export function AuthProvider({ children }: React.PropsWithChildren) {
   const [user, setUser] = useState<User | undefined>(undefined);
+  const [gymGoal, setGymGoal] = useState<number | undefined>(undefined);
 
   useEffect(() => {
     supabase.auth.getSession().then(({ data: { session } }) => {
@@ -28,13 +34,29 @@ export function AuthProvider({ children }: React.PropsWithChildren) {
       data: { subscription },
     } = supabase.auth.onAuthStateChange((_event, session) => {
       setUser(session?.user);
-    });
 
+      supabase.functions
+        .invoke("get_goal")
+        .then((response) => {
+          if (response.error) {
+            return;
+          }
+
+          setGymGoal(
+            typeof response.data.goal === "number"
+              ? response.data.goal
+              : undefined
+          );
+        })
+        .catch(console.error);
+    });
     return () => subscription.unsubscribe();
   }, []);
 
   return (
-    <AuthContext.Provider value={{ user }}>{children}</AuthContext.Provider>
+    <AuthContext.Provider value={{ user, gymGoal }}>
+      {children}
+    </AuthContext.Provider>
   );
 }
 
@@ -55,6 +77,12 @@ export const supabase = createClient(SUPABASE_URL, SUPABASE_ANON_KEY, {
   },
 });
 
+export async function setGymGoal(goal: number) {
+  supabase.functions.invoke("set_goal", {
+    body: JSON.stringify({ goal }),
+  });
+}
+
 export async function signInWithDiscord() {
   console.log("Starting Discord sign-in process");
   
@@ -71,23 +99,15 @@ export async function signInWithDiscord() {
     throw error;
   }
 
-  console.log("OAuth URL generated:", data.url);
-  console.log("Redirect URL:", appRedirectUrl);
-  
-  try {
-    const authResult = await openAuthSessionAsync(data.url, appRedirectUrl, {
-      showInRecents: true,
-      preferEphemeralSession: false,
-    });
+  const authResult = await openAuthSessionAsync(data.url, appRedirectUrl, {
+    showInRecents: true, // prevent browser from closing while temporarily switching to another app
+  });
 
-    console.log("Auth result type:", authResult.type);
-    
-    if (authResult.type !== "success") {
-      console.error("Authentication failed:", authResult);
-      throw new Error(
-        "Authentication " + authResult.type + ": " + JSON.stringify(authResult)
-      );
-    }
+  if (authResult.type !== "success") {
+    throw new Error(
+      "authentication " + authResult.type + ": " + JSON.stringify(authResult)
+    );
+  }
 
     console.log("Auth successful, processing URL:", authResult.url);
     const queryParamsResult = getQueryParams(authResult.url);
@@ -110,16 +130,8 @@ export async function signInWithDiscord() {
       refresh_token,
     });
 
-    if (sessionResult.error) {
-      console.error("Error setting session:", sessionResult.error);
-      throw sessionResult.error;
-    }
-    
-    console.log("Authentication completed successfully");
-    return sessionResult;
-  } catch (e) {
-    console.error("Exception during authentication:", e);
-    throw e;
+  if (sessionResult.error) {
+    throw sessionResult.error;
   }
 }
 
