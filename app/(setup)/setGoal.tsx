@@ -21,10 +21,8 @@ export default function SetGoalScreen() {
 
   console.log(auth.gymGoal);
 
-
   const handleContinue = () => {
     setGymGoal(daySelection.value);
-    
 
     if (isEditing) {
       // If editing from settings, show a reminder or do your logic
