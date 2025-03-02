@@ -19,6 +19,8 @@ export default function SetGoalScreen() {
 
   const indicatorColor = useSharedValue("#22c55e");
 
+  console.log(auth.gymGoal);
+
   const handleContinue = () => {
     setGymGoal(daySelection.value);
 

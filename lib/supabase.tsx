@@ -7,8 +7,6 @@ import { makeRedirectUri } from "expo-auth-session";
 import { getQueryParams } from "expo-auth-session/build/QueryParams";
 import { openAuthSessionAsync } from "expo-web-browser";
 
-import { SUPABASE_URL, SUPABASE_ANON_KEY } from "./config";
-
 interface AuthContextType {
   user: User | undefined;
   gymGoal: number | undefined;
@@ -68,14 +66,18 @@ export const useAuth = () => {
   return context;
 };
 
-export const supabase = createClient(SUPABASE_URL, SUPABASE_ANON_KEY, {
-  auth: {
-    storage: AsyncStorage,
-    autoRefreshToken: true,
-    persistSession: true,
-    detectSessionInUrl: false,
-  },
-});
+export const supabase = createClient(
+  process.env.EXPO_PUBLIC_SUPABASE_URL as string,
+  process.env.EXPO_PUBLIC_SUPABASE_ANON_KEY as string,
+  {
+    auth: {
+      storage: AsyncStorage,
+      autoRefreshToken: true,
+      persistSession: true,
+      detectSessionInUrl: false,
+    },
+  }
+);
 
 export async function setGymGoal(goal: number) {
   supabase.functions.invoke("set_goal", {
@@ -112,7 +114,15 @@ export async function signInWithDiscord() {
     throw new Error(queryParamsResult.errorCode);
   }
 
+  if (
+    !queryParamsResult.params.access_token ||
+    !queryParamsResult.params.refresh_token
+  ) {
+    throw new Error("Missing authentication tokens in response");
+  }
+
   const { access_token, refresh_token } = queryParamsResult.params;
+
   const sessionResult = await supabase.auth.setSession({
     access_token,
     refresh_token,

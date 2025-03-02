@@ -2,15 +2,23 @@
   "expo": {
     "name": "c0re",
     "slug": "c0re",
+    "name": "c0re",
+    "slug": "c0re",
     "version": "1.0.0",
     "orientation": "portrait",
-    "icon": "./assets/images/logo.png",
+    "icon": "./assets/icons/Any.png",
     "scheme": "com.c0re.app",
     "userInterfaceStyle": "automatic",
     "newArchEnabled": true,
     "ios": {
+      "icon": {
+        "tinted": "./assets/icons/tinted.png",
+        "dark": "./assets/icons/Any.png",
+        "light": "./assets/icons/Any.png"
+      },
       "supportsTablet": true,
       "bundleIdentifier": "com.c0re.app",
+      "config": {},
       "infoPlist": {
         "NSLocationAlwaysAndWhenInUseUsageDescription": "This app requires location in the background 🦍",
         "NSLocationWhenInUseUsageDescription": "This app requires location while in use 🦍",
@@ -24,10 +32,11 @@
     },
     "android": {
       "adaptiveIcon": {
-        "foregroundImage": "./assets/images/logo.png",
-        "backgroundColor": "#ffffff"
+        "foregroundImage": "./assets/icons/adaptive-icon.png",
+        "backgroundColor": "#000000"
       },
-      "package": "com.c0re.app"
+      "package": "com.c0re.app",
+      "config": {}
     },
     "web": {
       "bundler": "metro",
@@ -39,10 +48,10 @@
       [
         "expo-splash-screen",
         {
-          "image": "./assets/images/logo.png",
+          "image": "./assets/icons/splash-icon-dark.png",
           "imageWidth": 200,
           "resizeMode": "contain",
-          "backgroundColor": "#ffffff"
+          "backgroundColor": "#000000"
         }
       ],
       ["react-native-background-geolocation", {}],
@@ -59,6 +68,12 @@
     ],
     "experiments": {
       "typedRoutes": true
-    }
+    },
+    "extra": {
+      "router": {
+        "origin": false
+      }
+    },
+    "owner": "ghuscroft"
   }
 }
