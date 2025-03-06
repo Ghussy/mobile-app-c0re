@@ -59,7 +59,7 @@ export interface Gym {
   latitude: number;
   longitude: number;
   builtin: boolean;
-  address?: string; // Optional field for custom gyms
+  address?: string;
 }
 
 export async function enrollGym(

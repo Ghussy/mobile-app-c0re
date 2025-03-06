@@ -1,6 +1,6 @@
 import React, { useEffect } from "react";
 import { SafeAreaView, View, Text, StyleSheet } from "react-native";
-import { useRouter } from "expo-router";
+import { useRouter, useLocalSearchParams, Redirect } from "expo-router";
 import { LinearGradient } from "expo-linear-gradient";
 import Button from "@/components/ui/Button";
 import ToggleCard from "@/components/ui/toggle-card";
@@ -10,6 +10,7 @@ import { enrollGym, unenrollGym, enrolledGyms, Gym } from "@/lib/sqlite";
 
 export default function SetGymScreen() {
   const router = useRouter();
+  const { isEditing } = useLocalSearchParams<{ isEditing?: string }>();
   const [selectedGyms, setSelectedGyms] = React.useState<Gym[]>([]);
 
   useEffect(() => {
@@ -39,6 +40,19 @@ export default function SetGymScreen() {
     setSelectedGyms(await enrolledGyms());
   };
 
+  const handleContinue = () => {
+    if (isEditing) {
+      router.replace("/(tabs)/leaderboard");
+    } else {
+      router.push("/(tabs)/leaderboard");
+    }
+  };
+
+  const titleText = isEditing ? "Update Your Gym" : "Save your Gym";
+  const subtitleText = isEditing
+    ? "Where do you workout?"
+    : "Where do you workout?";
+
   return (
     <SafeAreaView style={styles.container}>
       <LinearGradient
@@ -51,8 +65,8 @@ export default function SetGymScreen() {
         <View style={styles.content}>
           {/* Header Section */}
           <View style={styles.header}>
-            <Text style={styles.title}>Save your Gym</Text>
-            <Text style={styles.subtitle}>Where do you workout?</Text>
+            <Text style={styles.title}>{titleText}</Text>
+            <Text style={styles.subtitle}>{subtitleText}</Text>
           </View>
 
           {/* Main Content */}
@@ -60,20 +74,20 @@ export default function SetGymScreen() {
             <ToggleCard
               name="Vasa"
               icon="navigation"
-              isSelected={enrolledInGym("Vasa")}
-              onToggle={() => toggleGym("Vasa", 0, 0)}
+              isSelected={enrolledInGym("vasa")}
+              onToggle={() => toggleGym("vasa", 0, 0)}
             />
             <ToggleCard
               name="EOS"
               icon="navigation"
-              isSelected={enrolledInGym("EOS")}
-              onToggle={() => toggleGym("EOS", 0, 0)}
+              isSelected={enrolledInGym("eos")}
+              onToggle={() => toggleGym("eos", 0, 0)}
             />
             <ToggleCard
               name="Planet Fitness"
               icon="navigation"
-              isSelected={enrolledInGym("Planet Fitness")}
-              onToggle={() => toggleGym("Planet Fitness", 0, 0)}
+              isSelected={enrolledInGym("planet fitness")}
+              onToggle={() => toggleGym("planet fitness", 0, 0)}
             />
 
             {/* Custom Selected Gyms */}
@@ -86,7 +100,10 @@ export default function SetGymScreen() {
                   subtitle={gym.address || `${gym.latitude}, ${gym.longitude}`}
                   icon="navigation"
                   variant="delete"
-                  onDelete={() => unenrollGym(gym.name, false)}
+                  onDelete={async () => {
+                    await unenrollGym(gym.name, false);
+                    setSelectedGyms(await enrolledGyms());
+                  }}
                   isSelected={true}
                   onToggle={() =>
                     toggleGym(gym.name, gym.latitude, gym.longitude, false)
@@ -161,10 +178,11 @@ export default function SetGymScreen() {
           {/* Footer */}
           <View style={styles.footer}>
             <Button
-              onPress={() => router.push("/(tabs)/leaderboard")}
+              onPress={handleContinue}
               buttonStyles={styles.button}
+              disabled={selectedGyms.length === 0}
             >
-              Continue
+              {isEditing ? "Save Changes" : "Continue"}
             </Button>
           </View>
         </View>

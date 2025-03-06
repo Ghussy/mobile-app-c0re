@@ -10,11 +10,13 @@ import { openAuthSessionAsync } from "expo-web-browser";
 interface AuthContextType {
   user: User | undefined;
   gymGoal: number | undefined;
+  updateGymGoal: (goal: number) => void;
 }
 
 const AuthContext = createContext<AuthContextType>({
   user: undefined,
   gymGoal: undefined,
+  updateGymGoal: () => {},
 });
 
 const appRedirectUrl = makeRedirectUri({ path: "(tabs)/leaderboard" });
@@ -22,6 +24,10 @@ const appRedirectUrl = makeRedirectUri({ path: "(tabs)/leaderboard" });
 export function AuthProvider({ children }: React.PropsWithChildren) {
   const [user, setUser] = useState<User | undefined>(undefined);
   const [gymGoal, setGymGoal] = useState<number | undefined>(undefined);
+
+  const updateGymGoal = (goal: number) => {
+    setGymGoal(goal);
+  };
 
   useEffect(() => {
     supabase.auth.getSession().then(({ data: { session } }) => {
@@ -36,10 +42,7 @@ export function AuthProvider({ children }: React.PropsWithChildren) {
       supabase.functions
         .invoke("get_goal")
         .then((response) => {
-          if (response.error) {
-            return;
-          }
-
+          if (response.error) return;
           setGymGoal(
             typeof response.data.goal === "number"
               ? response.data.goal
@@ -52,7 +55,7 @@ export function AuthProvider({ children }: React.PropsWithChildren) {
   }, []);
 
   return (
-    <AuthContext.Provider value={{ user, gymGoal }}>
+    <AuthContext.Provider value={{ user, gymGoal, updateGymGoal }}>
       {children}
     </AuthContext.Provider>
   );
@@ -67,8 +70,8 @@ export const useAuth = () => {
 };
 
 export const supabase = createClient(
-  process.env.EXPO_PUBLIC_SUPABASE_URL as string,
-  process.env.EXPO_PUBLIC_SUPABASE_ANON_KEY as string,
+  process.env.EXPO_PUBLIC_SUPABASE_URL!,
+  process.env.EXPO_PUBLIC_SUPABASE_ANON_KEY!,
   {
     auth: {
       storage: AsyncStorage,
@@ -79,58 +82,40 @@ export const supabase = createClient(
   }
 );
 
-export async function setGymGoal(goal: number) {
-  supabase.functions.invoke("set_goal", {
-    body: JSON.stringify({ goal }),
-  });
-}
-
 export async function signInWithDiscord() {
   const { data, error } = await supabase.auth.signInWithOAuth({
     provider: "discord",
     options: {
       redirectTo: appRedirectUrl,
       skipBrowserRedirect: true,
+      scopes: "identify email",
     },
   });
 
-  if (error) {
-    throw error;
-  }
+  if (error) throw error;
 
   const authResult = await openAuthSessionAsync(data.url, appRedirectUrl, {
-    showInRecents: true, // prevent browser from closing while temporarily switching to another app
+    showInRecents: true,
   });
 
   if (authResult.type !== "success") {
     throw new Error(
-      "authentication " + authResult.type + ": " + JSON.stringify(authResult)
+      `Authentication ${authResult.type}: ${JSON.stringify(authResult)}`
     );
   }
 
-  const queryParamsResult = getQueryParams(authResult.url);
-
-  if (queryParamsResult.errorCode) {
-    throw new Error(queryParamsResult.errorCode);
-  }
-
-  if (
-    !queryParamsResult.params.access_token ||
-    !queryParamsResult.params.refresh_token
-  ) {
+  const { params, errorCode } = getQueryParams(authResult.url);
+  if (errorCode) throw new Error(errorCode);
+  if (!params.access_token || !params.refresh_token) {
     throw new Error("Missing authentication tokens in response");
   }
 
-  const { access_token, refresh_token } = queryParamsResult.params;
-
-  const sessionResult = await supabase.auth.setSession({
-    access_token,
-    refresh_token,
+  const { error: sessionError } = await supabase.auth.setSession({
+    access_token: params.access_token,
+    refresh_token: params.refresh_token,
   });
 
-  if (sessionResult.error) {
-    throw sessionResult.error;
-  }
+  if (sessionError) throw sessionError;
 }
 
 AppState.addEventListener("change", (state) => {

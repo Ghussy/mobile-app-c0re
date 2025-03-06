@@ -1,14 +1,14 @@
 // SkiaNumber.tsx
-import React, { useMemo, useEffect } from 'react';
-import { useWindowDimensions } from 'react-native';
+import React, { useMemo, useEffect } from "react";
+import { View } from "react-native";
 import Animated, {
   useSharedValue,
   useDerivedValue,
   withRepeat,
-  withTiming,
   withDelay,
+  withTiming,
   Easing,
-} from 'react-native-reanimated';
+} from "react-native-reanimated";
 import {
   Canvas,
   Group,
@@ -21,42 +21,52 @@ import {
   vec,
   Paint,
   BlurMask,
-} from '@shopify/react-native-skia';
+} from "@shopify/react-native-skia";
 
 // Adjust the path as needed to your font asset.
-const OrbitronBold = require('@/assets/fonts/Orbitron-Bold.ttf');
+const OrbitronBold = require("@/assets/fonts/Orbitron-Bold.ttf");
 
 interface SkiaNumberProps {
   /** The text (or number) to display */
   text: string;
-  /** The height of the component (width will be full window width) */
+  /** The font size to use for the number */
   size?: number;
 }
 
-export const SkiaNumber: React.FC<SkiaNumberProps> = ({ text, size = 200 }) => {
-  const { width: windowWidth } = useWindowDimensions();
-  const font = useFont(OrbitronBold, 175);
+export const SkiaNumber: React.FC<SkiaNumberProps> = ({ text, size = 40 }) => {
+  const font = useFont(OrbitronBold, size);
   const rotation = useSharedValue(0);
-  
+
+  // Calculate dimensions based on font size and text
+  const getTextWidth = () => {
+    if (!font) return size * text.length * 0.7; // Fallback estimate
+    return font.getTextWidth(text); // Get exact text width
+  };
+
+  // Add consistent padding based on font size
+  const padding = size * 0;
+  const textWidth = getTextWidth();
+  const canvasWidth = textWidth + padding * 2; // Add padding on both sides
+  const canvasHeight = size * 1;
+
   // Create a linear gradient used to fill the text.
-  const linearGradient = useMemo(
-    () => (
+  const linearGradient = useMemo(() => {
+    return (
       <LinearGradient
         start={vec(0, 0)}
-        end={vec(windowWidth * 0.57, size * 1.3)}
-        positions={[0.3, 0.4, 0.5, 0.6, 0.7]}
-        colors={['#CCE8FE', '#CDA0FF', '#8489F5', '#CDF1FF', '#B591E9']}
+        end={vec(canvasWidth, canvasHeight)}
+        positions={[0, 0.25, 0.5, 0.75, 1]}
+        colors={["#CCE8FE", "#CDA0FF", "#8489F5", "#CDF1FF", "#B591E9"]}
       />
-    ),
-    [windowWidth, size]
-  );
+    );
+  }, [canvasWidth, canvasHeight]);
 
   useEffect(() => {
     rotation.value = withRepeat(
       withDelay(
-        5000,
+        1000,
         withTiming(1, {
-          duration: 2000,
+          duration: 1500,
           easing: Easing.linear,
         })
       ),
@@ -66,7 +76,8 @@ export const SkiaNumber: React.FC<SkiaNumberProps> = ({ text, size = 200 }) => {
   }, []);
 
   const animatedRotation = useDerivedValue(() => {
-    return [{ rotate: Math.PI * (rotation.value - 0.5) }];
+    // Full rotation to ensure the shine sweeps across the entire text
+    return [{ rotate: Math.PI * 2 * rotation.value }];
   });
 
   // Return early if font isn't loaded, but after all hooks are declared
@@ -75,46 +86,62 @@ export const SkiaNumber: React.FC<SkiaNumberProps> = ({ text, size = 200 }) => {
   }
 
   return (
-    <Animated.View style={{ width: windowWidth, height: size }}>
-      <Canvas style={{ width: windowWidth, height: size }}>
-        <Group
-          // Apply a blur mask to the entire group.
-          layer={<Paint><BlurMask blur={4} style="solid" /></Paint>}
-        >
-          {/* Create a mask from the text shape */}
-          <Mask
-            mask={
-              <Text
-                color="white"
-                font={font}
-                text={text}
-                x={windowWidth / 2 - font.getTextWidth(text) / 2}
-                y={size / 2 + font.getSize() / 4}
-              />
+    <View style={{ alignItems: "center", height: canvasHeight }}>
+      <Animated.View style={{ width: canvasWidth, height: canvasHeight }}>
+        <Canvas style={{ width: canvasWidth, height: canvasHeight }}>
+          <Group
+            // Apply a blur mask to the entire group.
+            layer={
+              <Paint>
+                <BlurMask blur={2} style="solid" />
+              </Paint>
             }
           >
-            <Fill>{linearGradient}</Fill>
-          </Mask>
+            {/* Create a mask from the text shape */}
+            <Mask
+              mask={
+                <Text
+                  color="white"
+                  font={font}
+                  text={text}
+                  x={padding} // Position text with consistent padding
+                  y={canvasHeight / 2 + font.getSize() / 3}
+                />
+              }
+            >
+              <Fill>{linearGradient}</Fill>
+            </Mask>
 
-          {/* Render the text stroke with the animated shine effect */}
-          <Text
-            font={font}
-            text={text}
-            x={windowWidth / 2 - font.getTextWidth(text) / 2}
-            y={size / 2 + font.getSize() / 4}
-            strokeWidth={2}
-            style="stroke"
-          >
-            <SweepGradient
-              c={vec(windowWidth / 3, size / 3)}
-              colors={['transparent', 'white', 'white', 'transparent']}
-              start={0}
-              end={360 * 0.2}
-              transform={animatedRotation}
-            />
-          </Text>
-        </Group>
-      </Canvas>
-    </Animated.View>
+            {/* Render the text stroke with the animated shine effect */}
+            <Text
+              font={font}
+              text={text}
+              x={padding} // Position text with consistent padding
+              y={canvasHeight / 2 + font.getSize() / 3}
+              strokeWidth={1}
+              style="stroke"
+            >
+              <SweepGradient
+                // Position the center outside the text area to create a sweeping effect
+                c={vec(padding - size * 0.4, canvasHeight / 6)}
+                colors={[
+                  "transparent",
+                  "transparent",
+                  "transparent",
+                  "white",
+                  "white",
+                  "transparent",
+                  "transparent",
+                  "transparent",
+                ]}
+                start={0}
+                end={360 * 0.6} // Significantly increase the sweep angle for better coverage
+                transform={animatedRotation}
+              />
+            </Text>
+          </Group>
+        </Canvas>
+      </Animated.View>
+    </View>
   );
 };

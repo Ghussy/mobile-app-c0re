@@ -2,11 +2,13 @@ import { SafeAreaView, View, Text, StyleSheet } from "react-native";
 import { useRouter, useLocalSearchParams, Redirect } from "expo-router";
 import { useSharedValue } from "react-native-reanimated";
 import { LinearGradient } from "expo-linear-gradient";
+import { useEffect } from "react";
 
 import Button from "@/components/ui/Button";
 import { AnimatedCount } from "@/components/ui/wheel-picker/animated-count/animated-count";
 import { DraggableSlider } from "@/components/ui/wheel-picker/draggable-slider";
-import { setGymGoal, useAuth } from "@/lib/supabase";
+import { useAuth } from "@/lib/supabase";
+import { useGymGoal } from "@/lib/hooks/useGymGoal";
 
 const LINES_AMOUNT = 7;
 
@@ -14,33 +16,43 @@ export default function SetGoalScreen() {
   const router = useRouter();
   const { isEditing } = useLocalSearchParams<{ isEditing?: string }>();
   const auth = useAuth();
+  const { gymGoal, setGymGoal, isLoading } = useGymGoal();
 
   const daySelection = useSharedValue(0);
 
   const indicatorColor = useSharedValue("#22c55e");
 
-  console.log(auth.gymGoal);
+  // Initialize daySelection with the user's current goal when in editing mode
+  useEffect(() => {
+    if (isEditing && typeof gymGoal === "number") {
+      daySelection.value = gymGoal;
+    }
+  }, [isEditing, gymGoal]);
 
-  const handleContinue = () => {
-    setGymGoal(daySelection.value);
+  const handleContinue = async () => {
+    try {
+      await setGymGoal(daySelection.value);
 
-    if (isEditing) {
-      // If editing from settings, show a reminder or do your logic
-      // For now, we simply go back. Adjust as needed.
-      router.back();
-    } else {
-      // If in initial setup flow, continue to next step
-      router.push("/(setup)/setGym");
+      if (isEditing) {
+        // If editing from settings, show a reminder or do your logic
+        // For now, we simply go back. Adjust as needed.
+        router.replace("/(tabs)/leaderboard");
+      } else {
+        // If in initial setup flow, continue to next step
+        router.push("/(setup)/setGym");
+      }
+    } catch (error) {
+      console.error("Failed to save goal:", error);
+      // You might want to show an error message to the user here
     }
   };
 
-  // Dynamic text based on editing
   const titleText = isEditing ? "Update Your Goal" : "Set a Goal!";
   const subtitleText = isEditing
     ? "Keep in mind that editing your goal will reset your streak.\nHow many days per week do you want to work out?"
     : "How many days per week do you want to work out?";
 
-  if (typeof auth.gymGoal === "number") {
+  if (typeof gymGoal === "number" && !isEditing) {
     return <Redirect href="/(tabs)/leaderboard" />;
   }
 
@@ -83,6 +95,9 @@ export default function SetGoalScreen() {
                 maxLineHeight={20}
                 minLineHeight={10}
                 indicatorColor={indicatorColor}
+                initialValue={
+                  isEditing && typeof gymGoal === "number" ? gymGoal : 0
+                }
                 onProgressChange={(sliderProgress) => {
                   "worklet";
                   if (sliderProgress < 0) return;
@@ -94,7 +109,12 @@ export default function SetGoalScreen() {
 
           {/* Footer */}
           <View style={styles.footer}>
-            <Button onPress={handleContinue} buttonStyles={styles.button}>
+            <Button
+              onPress={handleContinue}
+              buttonStyles={styles.button}
+              loading={isLoading}
+              disabled={isLoading}
+            >
               {isEditing ? "Save Changes" : "Continue"}
             </Button>
           </View>

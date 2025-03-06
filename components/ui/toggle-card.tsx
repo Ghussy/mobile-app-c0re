@@ -1,6 +1,6 @@
 import React, { useState } from "react";
 import { View, Text, StyleSheet, Pressable } from "react-native";
-import { Navigation, Plus, Trash2, X } from "lucide-react-native";
+import { Navigation, Plus, X } from "lucide-react-native";
 import DarkSwitch from "@/components/ui/permission/DarkSwitch";
 
 interface ToggleCardProps {
@@ -42,7 +42,7 @@ const ToggleCard = ({
       )}
       {variant === "delete" && (
         <Pressable onPress={onDelete}>
-          <X size={24} color="#ef4444" />
+          <X size={24} color="#fafafa" />
         </Pressable>
       )}
     </Pressable>
