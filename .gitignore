@@ -1,6 +1,8 @@
 /node_modules/
 expo-env.d.ts
 .expo/
+.env
 lib/config.ts
 /android/
 /ios/
+.DS_Store

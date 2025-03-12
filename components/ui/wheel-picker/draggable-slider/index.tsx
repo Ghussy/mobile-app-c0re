@@ -1,8 +1,8 @@
 // Importing necessary modules and components
-import { Canvas, Path } from '@shopify/react-native-skia';
-import { View } from 'react-native';
-import { Gesture, GestureDetector } from 'react-native-gesture-handler';
-import type { SharedValue } from 'react-native-reanimated';
+import { Canvas, Path } from "@shopify/react-native-skia";
+import { View } from "react-native";
+import { Gesture, GestureDetector } from "react-native-gesture-handler";
+import type { SharedValue } from "react-native-reanimated";
 import Animated, {
   cancelAnimation,
   clamp,
@@ -13,15 +13,15 @@ import Animated, {
   useSharedValue,
   withSpring,
   withTiming,
-} from 'react-native-reanimated';
-import { useMemo } from 'react';
-import Color from 'color';
+} from "react-native-reanimated";
+import { useMemo, useEffect } from "react";
+import Color from "color";
 
-import { getLinesPath } from './utils/get-lines-path';
-import { ScreenWidth } from './constants';
-import { snapPoint } from './utils/snap-point';
-import { BoundaryGradient } from './boundary-gradient';
-import { unwrapReanimatedValue } from './utils/unwrap-reanimated-value';
+import { getLinesPath } from "./utils/get-lines-path";
+import { ScreenWidth } from "./constants";
+import { snapPoint } from "./utils/snap-point";
+import { BoundaryGradient } from "./boundary-gradient";
+import { unwrapReanimatedValue } from "./utils/unwrap-reanimated-value";
 
 // Defining type for props
 type DraggableSliderProps = {
@@ -56,6 +56,8 @@ type DraggableSliderProps = {
   lineColor?: string;
   // Optional: The color of the big lines (default is #c6c6c6)
   bigLineColor?: string;
+  // Optional: Initial value for the slider (0-1)
+  initialValue?: number;
 };
 
 // DraggableSlider component
@@ -71,8 +73,9 @@ export const DraggableSlider: React.FC<DraggableSliderProps> = ({
   snapEach = 1,
   indicatorColor,
   showBoundaryGradient = true,
-  lineColor = '#c6c6c6',
-  bigLineColor = '#c6c6c6',
+  lineColor = "#c6c6c6",
+  bigLineColor = "#c6c6c6",
+  initialValue = 0,
 }) => {
   // Shared value for scroll context
   const scrollContext = useSharedValue(0);
@@ -90,6 +93,20 @@ export const DraggableSlider: React.FC<DraggableSliderProps> = ({
     return Math.round(linesAmount * spacePerLine.value);
   }, [linesAmount, spacePerLine]);
 
+  // Initialize the slider position based on initialValue
+  useEffect(() => {
+    if (initialValue > 0 && initialValue <= linesAmount) {
+      const progress = initialValue / linesAmount;
+      const newOffset = interpolate(
+        progress,
+        [0, 1],
+        [ScreenWidth / 2, -progressWidth.value + ScreenWidth / 2]
+      );
+      scrollOffset.value = newOffset;
+      clampedScrollOffset.value = newOffset;
+    }
+  }, [initialValue, linesAmount, progressWidth.value]);
+
   // Memoizing spacings for snapping
   // This is used to determine the snap points for the spring animation
   // when the user releases the slider
@@ -99,23 +116,23 @@ export const DraggableSlider: React.FC<DraggableSliderProps> = ({
 
   const spacings = useDerivedValue(() => {
     return linesArray.map(
-      (_, i) => ScreenWidth / 2 - i * spacePerLine.value * snapEach,
+      (_, i) => ScreenWidth / 2 - i * spacePerLine.value * snapEach
     );
   }, [linesArray, snapEach, spacePerLine]);
 
   // Reactions to scroll offset changes
   useAnimatedReaction(
     () => clampedScrollOffset.value,
-    offset => {
+    (offset) => {
       // Interpolating progress based on scroll offset
       const progress = interpolate(
         offset,
         [ScreenWidth / 2, -progressWidth.value + ScreenWidth / 2],
-        [0, 1],
+        [0, 1]
       );
       // Calling the progress change callback if provided
       if (onProgressChange) onProgressChange(progress);
-    },
+    }
   );
 
   // Gesture handler for panning
@@ -126,28 +143,28 @@ export const DraggableSlider: React.FC<DraggableSliderProps> = ({
       // Cancelling any ongoing animations
       cancelAnimation(scrollOffset);
     })
-    .onUpdate(event => {
+    .onUpdate((event) => {
       // Updating scroll offset based on pan gesture
       scrollOffset.value = clamp(
         scrollContext.value + event.translationX,
         -progressWidth.value + ScreenWidth / 2,
-        ScreenWidth / 2,
+        ScreenWidth / 2
       );
       clampedScrollOffset.value = scrollOffset.value;
     })
-    .onEnd(event => {
+    .onEnd((event) => {
       // Applying spring animation for snapping
       scrollOffset.value = withSpring(
         snapPoint(scrollOffset.value, event.velocityX, spacings.value),
         {
           mass: 0.45,
-        },
+        }
       );
       clampedScrollOffset.value = withTiming(
         snapPoint(clampedScrollOffset.value, event.velocityX, spacings.value),
         {
           duration: 50,
-        },
+        }
       );
       // If you don't like snapping, you can use decay animation instead
       // I personally prefer snapping for this use case but this is also an option
@@ -164,13 +181,13 @@ export const DraggableSlider: React.FC<DraggableSliderProps> = ({
     (curr, prev) => {
       if (curr !== prev) {
         scrollOffset.value = withTiming(
-          snapPoint(clampedScrollOffset.value, 10, spacings.value),
+          snapPoint(clampedScrollOffset.value, 10, spacings.value)
         );
         clampedScrollOffset.value = withTiming(
-          snapPoint(clampedScrollOffset.value, 10, spacings.value),
+          snapPoint(clampedScrollOffset.value, 10, spacings.value)
         );
       }
-    },
+    }
   );
 
   // Derived value for big lines path
@@ -180,7 +197,7 @@ export const DraggableSlider: React.FC<DraggableSliderProps> = ({
       spacePerLine: spacePerLine.value,
       maxLineHeight,
       minLineHeight,
-      type: 'bigLines',
+      type: "bigLines",
       bigLineEach: bigLineIndexOffset,
       scrollOffset: scrollOffset,
     });
@@ -193,7 +210,7 @@ export const DraggableSlider: React.FC<DraggableSliderProps> = ({
       spacePerLine: spacePerLine.value,
       maxLineHeight,
       minLineHeight,
-      type: 'smallLines',
+      type: "smallLines",
       bigLineEach: bigLineIndexOffset,
       scrollOffset: scrollOffset,
     });
@@ -206,7 +223,7 @@ export const DraggableSlider: React.FC<DraggableSliderProps> = ({
   // Animated style for indicator line
   const rIndicatorStyle = useAnimatedStyle(() => {
     return {
-      backgroundColor: indicatorColor?.value ?? 'orange',
+      backgroundColor: indicatorColor?.value ?? "orange",
     };
   }, []);
 
@@ -217,18 +234,21 @@ export const DraggableSlider: React.FC<DraggableSliderProps> = ({
         <Animated.View
           style={{
             height: scrollableAreaHeight,
-          }}>
+          }}
+        >
           <Animated.View
             style={{
               width: ScreenWidth,
               paddingTop: scrollableAreaHeight / 2 - maxLineHeight / 2,
-              overflow: 'visible',
-            }}>
+              overflow: "visible",
+            }}
+          >
             <Canvas
               style={{
                 width: ScreenWidth,
                 height: maxLineHeight,
-              }}>
+              }}
+            >
               {/* 
                   We're rendering big and small lines into different paths 
                   Just because we want to render them with different opacities / colors
@@ -246,7 +266,7 @@ export const DraggableSlider: React.FC<DraggableSliderProps> = ({
                   height={maxLineHeight}
                   width={ScreenWidth}
                   mainColor={
-                    !Color(lineColor).isLight() ? '#000000' : '#ffffff'
+                    !Color(lineColor).isLight() ? "#000000" : "#ffffff"
                   }
                 />
               )}
@@ -262,7 +282,7 @@ export const DraggableSlider: React.FC<DraggableSliderProps> = ({
           {
             width: indicatorLineWidth,
             height: indicatorLineHeight,
-            position: 'absolute',
+            position: "absolute",
             left: ScreenWidth / 2,
             borderRadius: 10,
             top: scrollableAreaHeight / 2 - indicatorLineHeight / 2,

@@ -1,13 +1,14 @@
-import { Pressable, StyleSheet, Text } from "react-native";
+import { Pressable, StyleSheet, Text, ActivityIndicator } from "react-native";
 
 interface ButtonProps {
   disabled?: boolean;
-  onPress?: () => void;
+  onPress?: () => void | Promise<void>;
   buttonStyles?: object;
   textStyles?: object;
   children?: React.ReactNode;
   accessibilityLabel?: string;
-  variant?: 'primary' | 'secondary' | 'disabled';
+  variant?: "primary" | "secondary" | "disabled";
+  loading?: boolean;
 }
 
 const Button = ({
@@ -17,14 +18,16 @@ const Button = ({
   textStyles,
   children = "Continue",
   accessibilityLabel,
-  variant = 'primary'
+  variant = "primary",
+  loading = false,
 }: ButtonProps) => {
   const getButtonStyle = () => {
-    if (disabled) return [styles.buttonBase, styles.buttonDisabled, buttonStyles];
+    if (disabled || loading)
+      return [styles.buttonBase, styles.buttonDisabled, buttonStyles];
     switch (variant) {
-      case 'secondary':
+      case "secondary":
         return [styles.buttonBase, styles.buttonSecondary, buttonStyles];
-      case 'disabled':
+      case "disabled":
         return [styles.buttonBase, styles.buttonDisabled, buttonStyles];
       default:
         return [styles.buttonBase, styles.buttonPrimary, buttonStyles];
@@ -34,14 +37,16 @@ const Button = ({
   return (
     <Pressable
       style={getButtonStyle()}
-      disabled={disabled}
+      disabled={disabled || loading}
       onPress={onPress}
       accessible
       accessibilityLabel={accessibilityLabel || "Button"}
     >
-      <Text style={[styles.text, textStyles]}>
-        {children}
-      </Text>
+      {loading ? (
+        <ActivityIndicator color="#fafafa" />
+      ) : (
+        <Text style={[styles.text, textStyles]}>{children}</Text>
+      )}
     </Pressable>
   );
 };
@@ -57,7 +62,7 @@ const styles = StyleSheet.create({
     shadowColor: "rgba(0, 0, 0, 0.05)",
     shadowOffset: {
       width: 0,
-      height: 1
+      height: 1,
     },
     shadowRadius: 2,
     elevation: 2,

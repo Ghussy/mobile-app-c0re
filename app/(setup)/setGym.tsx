@@ -1,23 +1,26 @@
-import { useEffect, useState } from "react";
+import React, { useEffect } from "react";
 import { SafeAreaView, View, Text, StyleSheet } from "react-native";
-import { useRouter } from "expo-router";
+import { useRouter, useLocalSearchParams, Redirect } from "expo-router";
 import { LinearGradient } from "expo-linear-gradient";
 import Button from "@/components/ui/Button";
 import ToggleCard from "@/components/ui/toggle-card";
+import { pickPlace } from "react-native-place-picker";
+import { getCurrentLocation } from "@/providers/LocationReporter";
 import { enrollGym, unenrollGym, enrolledGyms, Gym } from "@/lib/sqlite";
 
 export default function SetGymScreen() {
   const router = useRouter();
-  const [selectedGyms, setSelectedGyms] = useState<Gym[]>([]);
+  const { isEditing } = useLocalSearchParams<{ isEditing?: string }>();
+  const [selectedGyms, setSelectedGyms] = React.useState<Gym[]>([]);
 
   useEffect(() => {
     enrolledGyms().then(setSelectedGyms);
   }, []);
 
-  function enrolledInBuiltinGym(name: string) {
+  function enrolledInGym(name: string, builtin: boolean = true) {
     return (
       typeof selectedGyms.find(
-        (gym) => gym.name === name && gym.builtin === true,
+        (gym) => gym.name === name && gym.builtin === builtin
       ) !== "undefined"
     );
   }
@@ -26,15 +29,29 @@ export default function SetGymScreen() {
     name: string,
     latitude: number,
     longitude: number,
+    builtin: boolean = true
   ) => {
-    if (enrolledInBuiltinGym(name)) {
-      await unenrollGym(name, true);
+    if (enrolledInGym(name, builtin)) {
+      await unenrollGym(name, builtin);
     } else {
-      await enrollGym(name, latitude, longitude, true);
+      await enrollGym(name, latitude, longitude, builtin);
     }
 
     setSelectedGyms(await enrolledGyms());
   };
+
+  const handleContinue = () => {
+    if (isEditing) {
+      router.replace("/(tabs)/leaderboard");
+    } else {
+      router.push("/(tabs)/leaderboard");
+    }
+  };
+
+  const titleText = isEditing ? "Update Your Gym" : "Save your Gym";
+  const subtitleText = isEditing
+    ? "Where do you workout?"
+    : "Where do you workout?";
 
   return (
     <SafeAreaView style={styles.container}>
@@ -48,8 +65,8 @@ export default function SetGymScreen() {
         <View style={styles.content}>
           {/* Header Section */}
           <View style={styles.header}>
-            <Text style={styles.title}>Save your Gym</Text>
-            <Text style={styles.subtitle}>Where do you workout?</Text>
+            <Text style={styles.title}>{titleText}</Text>
+            <Text style={styles.subtitle}>{subtitleText}</Text>
           </View>
 
           {/* Main Content */}
@@ -57,27 +74,103 @@ export default function SetGymScreen() {
             <ToggleCard
               name="Vasa"
               icon="navigation"
-              isSelected={enrolledInBuiltinGym("vasa")}
+              isSelected={enrolledInGym("vasa")}
               onToggle={() => toggleGym("vasa", 0, 0)}
             />
             <ToggleCard
               name="EOS"
               icon="navigation"
-              isSelected={enrolledInBuiltinGym("eos")}
+              isSelected={enrolledInGym("eos")}
               onToggle={() => toggleGym("eos", 0, 0)}
             />
             <ToggleCard
               name="Planet Fitness"
               icon="navigation"
-              isSelected={enrolledInBuiltinGym("planet")}
-              onToggle={() => toggleGym("planet", 0, 0)}
+              isSelected={enrolledInGym("planet fitness")}
+              onToggle={() => toggleGym("planet fitness", 0, 0)}
             />
+
+            {/* Custom Selected Gyms */}
+            {selectedGyms
+              .filter((gym) => !gym.builtin)
+              .map((gym) => (
+                <ToggleCard
+                  key={gym.name}
+                  name={gym.name}
+                  subtitle={gym.address || `${gym.latitude}, ${gym.longitude}`}
+                  icon="navigation"
+                  variant="delete"
+                  onDelete={async () => {
+                    await unenrollGym(gym.name, false);
+                    setSelectedGyms(await enrolledGyms());
+                  }}
+                  isSelected={true}
+                  onToggle={() =>
+                    toggleGym(gym.name, gym.latitude, gym.longitude, false)
+                  }
+                />
+              ))}
+
             <ToggleCard
               name="Add Gym"
               icon="plus"
               variant="add"
-              onToggle={() => {
-                /* Handle add gym */
+              onToggle={async () => {
+                try {
+                  const { coords } = await getCurrentLocation();
+
+                  pickPlace({
+                    presentationStyle: "fullscreen",
+                    title: "Add Your Gym",
+                    searchPlaceholder: "Search for your gym...",
+                    color: "#27272a",
+                    contrastColor: "#ffffff",
+                    enableUserLocation: true,
+                    enableGeocoding: true,
+                    enableSearch: true,
+                    enableLargeTitle: true,
+                    initialCoordinates: {
+                      latitude: coords.latitude,
+                      longitude: coords.longitude,
+                    },
+                    rejectOnCancel: false,
+                  })
+                    .then(async (result) => {
+                      if (result && result.address) {
+                        console.log(
+                          "Full place result:",
+                          JSON.stringify(result, null, 2)
+                        );
+                        console.log(
+                          "Address object:",
+                          JSON.stringify(result.address, null, 2)
+                        );
+
+                        const gymName =
+                          result.address.name || result.address.streetName;
+                        const gymAddress = result.address.streetName;
+
+                        console.log("Using name:", gymName);
+                        console.log("Using address:", gymAddress);
+
+                        await enrollGym(
+                          gymName,
+                          result.coordinate.latitude,
+                          result.coordinate.longitude,
+                          false,
+                          gymAddress
+                        );
+                        setSelectedGyms(await enrolledGyms());
+                      }
+                    })
+                    .catch((error) => {
+                      if (!error.toString().includes("cancel")) {
+                        console.error(error);
+                      }
+                    });
+                } catch (error) {
+                  console.error("Error getting location:", error);
+                }
               }}
             />
           </View>
@@ -85,10 +178,11 @@ export default function SetGymScreen() {
           {/* Footer */}
           <View style={styles.footer}>
             <Button
-              onPress={() => router.push("/(tabs)/leaderboard")}
+              onPress={handleContinue}
               buttonStyles={styles.button}
+              disabled={selectedGyms.length === 0}
             >
-              Continue
+              {isEditing ? "Save Changes" : "Continue"}
             </Button>
           </View>
         </View>

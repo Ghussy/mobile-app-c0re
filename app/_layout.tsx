@@ -18,11 +18,10 @@ import { AuthProvider } from "@/lib/supabase";
 // Prevent the splash screen from auto-hiding before asset loading is complete.
 SplashScreen.preventAutoHideAsync();
 
-// ❗️TODO: Conditionally show the correct stack group based on logged in state and permissions
-
 export default gestureHandlerRootHOC(function RootLayout() {
   const [loaded] = useFonts({
     "Orbitron-Bold": require("../assets/fonts/Orbitron-Bold.ttf"),
+    "Orbitron-SemiBold": require("../assets/fonts/Orbitron-SemiBold.ttf"),
     Inter_400Regular,
     Inter_500Medium,
     Inter_600SemiBold,
@@ -43,9 +42,10 @@ export default gestureHandlerRootHOC(function RootLayout() {
     <ThemeProvider value={DarkTheme}>
       <AuthProvider>
         <LocationReporter />
-        <Stack screenOptions={{ headerShown: false }}>
-          <Stack.Screen name="(auth)" />
-          <Stack.Screen name="(tabs)" />
+        <Stack>
+          <Stack.Screen name="(auth)" options={{ headerShown: false }} />
+          <Stack.Screen name="(tabs)" options={{ headerShown: false }} />
+          <Stack.Screen name="(setup)" options={{ headerShown: false }} />
         </Stack>
         <StatusBar style="light" />
       </AuthProvider>

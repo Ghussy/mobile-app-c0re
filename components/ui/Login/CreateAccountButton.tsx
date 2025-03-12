@@ -3,14 +3,11 @@ import { useRouter } from "expo-router";
 
 const Button = () => {
   const router = useRouter();
+  const handlePress = () => {
+    router.push("/(auth)/Permission");
+  };
   return (
-    <TouchableOpacity
-      style={styles.createAccountButton}
-      onPress={() => {
-        console.log("Create account pressed");
-        router.push("/(auth)/Permission");
-      }}
-    >
+    <TouchableOpacity style={styles.createAccountButton} onPress={handlePress}>
       <Text style={styles.createAccountText}>Create account</Text>
     </TouchableOpacity>
   );
