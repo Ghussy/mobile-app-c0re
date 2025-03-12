@@ -7,8 +7,6 @@ import { makeRedirectUri } from "expo-auth-session";
 import { getQueryParams } from "expo-auth-session/build/QueryParams";
 import { openAuthSessionAsync } from "expo-web-browser";
 
-import { SUPABASE_URL, SUPABASE_ANON_KEY } from "./config";
-
 interface AuthContextType {
   user: User | undefined;
   gymGoal: number | undefined;
@@ -68,14 +66,18 @@ export const useAuth = () => {
   return context;
 };
 
-export const supabase = createClient(SUPABASE_URL, SUPABASE_ANON_KEY, {
-  auth: {
-    storage: AsyncStorage,
-    autoRefreshToken: true,
-    persistSession: true,
-    detectSessionInUrl: false,
-  },
-});
+export const supabase = createClient(
+  process.env.EXPO_PUBLIC_SUPABASE_URL!,
+  process.env.EXPO_PUBLIC_SUPABASE_ANON_KEY!,
+  {
+    auth: {
+      storage: AsyncStorage,
+      autoRefreshToken: true,
+      persistSession: true,
+      detectSessionInUrl: false,
+    },
+  }
+);
 
 export async function setGymGoal(goal: number) {
   supabase.functions.invoke("set_goal", {
