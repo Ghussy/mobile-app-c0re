@@ -9,6 +9,7 @@ import {
 } from "react-native";
 import { getRecentLocations } from "@/lib/sqlite";
 import { MapPin } from "lucide-react-native";
+import { SafeAreaView } from "react-native-safe-area-context";
 
 export default function LocationHistory() {
   const [locations, setLocations] = useState<
@@ -78,7 +79,7 @@ export default function LocationHistory() {
   const locationGroups = groupLocationsByDate();
 
   return (
-    <ScrollView style={styles.container}>
+    <SafeAreaView style={styles.container}>
       {locationGroups.map(([date, { locations: dateLocations }]) => (
         <View key={date} style={styles.dateGroup}>
           <Text style={styles.dateHeader}>{date}</Text>
@@ -110,7 +111,7 @@ export default function LocationHistory() {
           ))}
         </View>
       ))}
-    </ScrollView>
+    </SafeAreaView>
   );
 }
 
@@ -119,6 +120,7 @@ const styles = StyleSheet.create({
     flex: 1,
     backgroundColor: "#09090b",
     padding: 10,
+    paddingTop: 40,
   },
   dateGroup: {
     marginBottom: 20,

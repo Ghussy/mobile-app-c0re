@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from "react";
+import React, { useState } from "react";
 import {
   View,
   Image,
@@ -11,14 +11,14 @@ import Button from "@/components/ui/Button";
 import { useRouter, useLocalSearchParams, Redirect } from "expo-router";
 import DiscordIcon from "@/components/ui/icons/DiscordIcon";
 import { useAuth } from "@/lib/supabase";
-import { supabase } from "@/lib/supabase";
+import { useRealName } from "@/lib/hooks/useRealName";
 
 export default function SetNameScreen() {
   const [name, setName] = useState("");
-  const [isLoading, setIsLoading] = useState(false);
   const [imageError, setImageError] = useState(false);
   const router = useRouter();
   const { user } = useAuth();
+  const { setRealName, isLoading } = useRealName();
   const { isEditing } = useLocalSearchParams<{ isEditing?: string }>();
 
   // Redirect to auth if no user
@@ -27,44 +27,26 @@ export default function SetNameScreen() {
     return <Redirect href="/(auth)" />;
   }
 
-  // Add detailed logging
-  console.log("Complete user data:", user);
-  console.log("Discord metadata:", user?.user_metadata);
-  console.log("Has real_name?", Boolean(user?.user_metadata?.real_name));
-  console.log("Avatar URL:", user?.user_metadata?.avatar_url);
-
   const discordData = user?.user_metadata;
   const avatarUrl = discordData?.avatar_url;
 
-  const hasSetName = Boolean(user?.user_metadata?.real_name);
-  console.log("Has set name?", hasSetName);
-
-  if (hasSetName && !isEditing) {
-    console.log("Redirecting to setGoal because name is already set");
-    return <Redirect href="/(setup)/setGoal" />;
-  }
-
   const handleContinue = async () => {
     try {
-      setIsLoading(true);
-      // Currently Updating the user metadata directly using Supabase.. might need to change this
-      const { error } = await supabase.auth.updateUser({
-        data: { real_name: name },
-      });
+      const { error } = await setRealName(name);
 
       if (error) {
+        console.error("Detailed error:", error);
         throw error;
       }
 
+      console.log("Name set successfully, redirecting...");
       if (isEditing) {
         router.back();
       } else {
-        router.push("/(setup)/setGoal");
+        router.replace("/(setup)/setGoal");
       }
     } catch (error) {
       console.error("Error saving name:", error);
-    } finally {
-      setIsLoading(false);
     }
   };
 

@@ -5,7 +5,7 @@ export default function AuthLayout() {
   const auth = useAuth();
 
   if (auth.user) {
-    if (!auth.user.user_metadata?.real_name) {
+    if (!auth.realName) {
       console.log("User needs to set name first");
       return <Redirect href="/(setup)/setName" />;
     }

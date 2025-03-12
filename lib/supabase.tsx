@@ -10,52 +10,115 @@ import { openAuthSessionAsync } from "expo-web-browser";
 interface AuthContextType {
   user: User | undefined;
   gymGoal: number | undefined;
+  realName: string | undefined;
+  isInitialized: boolean;
   updateGymGoal: (goal: number) => void;
+  updateRealName: (name: string) => void;
 }
 
 const AuthContext = createContext<AuthContextType>({
   user: undefined,
   gymGoal: undefined,
+  realName: undefined,
+  isInitialized: false,
   updateGymGoal: () => {},
+  updateRealName: () => {},
 });
 
 const appRedirectUrl = makeRedirectUri({ path: "(tabs)/leaderboard" });
 
+const ASYNC_STORAGE_GYM_GOAL_KEY = "@gym_goal";
+const ASYNC_STORAGE_REAL_NAME_KEY = "@real_name";
+
 export function AuthProvider({ children }: React.PropsWithChildren) {
   const [user, setUser] = useState<User | undefined>(undefined);
   const [gymGoal, setGymGoal] = useState<number | undefined>(undefined);
+  const [realName, setRealName] = useState<string | undefined>(undefined);
+  const [isInitialized, setIsInitialized] = useState(false);
 
-  const updateGymGoal = (goal: number) => {
-    setGymGoal(goal);
+  const updateGymGoal = async (goal: number) => {
+    try {
+      await AsyncStorage.setItem(ASYNC_STORAGE_GYM_GOAL_KEY, goal.toString());
+      setGymGoal(goal);
+    } catch (error) {
+      console.error("Error updating gym goal:", error);
+      throw error;
+    }
+  };
+
+  const updateRealName = async (name: string) => {
+    try {
+      await AsyncStorage.setItem(ASYNC_STORAGE_REAL_NAME_KEY, name);
+      setRealName(name);
+    } catch (error) {
+      console.error("Error updating real name:", error);
+      throw error;
+    }
   };
 
   useEffect(() => {
-    supabase.auth.getSession().then(({ data: { session } }) => {
-      setUser(session?.user);
-    });
+    let isMounted = true;
+
+    async function initialize() {
+      try {
+        // Get session and stored data
+        const [
+          {
+            data: { session },
+          },
+          storedGoal,
+          storedName,
+        ] = await Promise.all([
+          supabase.auth.getSession(),
+          AsyncStorage.getItem(ASYNC_STORAGE_GYM_GOAL_KEY),
+          AsyncStorage.getItem(ASYNC_STORAGE_REAL_NAME_KEY),
+        ]);
+
+        if (isMounted) {
+          if (session?.user) setUser(session.user);
+          if (storedGoal) setGymGoal(parseInt(storedGoal, 10));
+          if (storedName) setRealName(storedName);
+          setIsInitialized(true);
+        }
+      } catch (error) {
+        console.error("Error during initialization:", error);
+        if (isMounted) {
+          setIsInitialized(true);
+        }
+      }
+    }
+
+    initialize();
 
     const {
       data: { subscription },
     } = supabase.auth.onAuthStateChange((_event, session) => {
-      setUser(session?.user);
-
-      supabase.functions
-        .invoke("get_goal")
-        .then((response) => {
-          if (response.error) return;
-          setGymGoal(
-            typeof response.data.goal === "number"
-              ? response.data.goal
-              : undefined
-          );
-        })
-        .catch(console.error);
+      if (isMounted) {
+        setUser(session?.user);
+      }
     });
-    return () => subscription.unsubscribe();
+
+    return () => {
+      isMounted = false;
+      subscription.unsubscribe();
+    };
   }, []);
 
+  if (!isInitialized) {
+    return null; // or loading spinner
+  }
+
   return (
-    <AuthContext.Provider value={{ user, gymGoal, updateGymGoal }}>
+    <AuthContext.Provider
+      value={{
+        user,
+        gymGoal,
+        realName,
+        isInitialized,
+        updateGymGoal,
+        updateRealName,
+      }}
+    >
       {children}
     </AuthContext.Provider>
   );

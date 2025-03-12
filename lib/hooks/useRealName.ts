@@ -2,17 +2,17 @@ import { useAuth } from "@/lib/supabase";
 import { supabase } from "@/lib/supabase";
 import { useState } from "react";
 
-export function useGymGoal() {
-  const { gymGoal, updateGymGoal } = useAuth();
+export function useRealName() {
+  const { realName, updateRealName } = useAuth();
   const [isLoading, setIsLoading] = useState(false);
 
-  const setGymGoal = async (goal: number) => {
+  const setRealName = async (name: string) => {
     try {
       setIsLoading(true);
 
       // Update Supabase first
-      const result = await supabase.functions.invoke("set_goal", {
-        body: { goal },
+      const result = await supabase.functions.invoke("set_name", {
+        body: { real_name: name },
       });
 
       if (result.error) {
@@ -20,15 +20,15 @@ export function useGymGoal() {
       }
 
       // Then update local state
-      await updateGymGoal(goal);
+      await updateRealName(name);
       return result;
     } catch (error) {
-      console.error("Error setting gym goal:", error);
+      console.error("Error setting name:", error);
       throw error;
     } finally {
       setIsLoading(false);
     }
   };
 
-  return { gymGoal, setGymGoal, isLoading };
+  return { realName, setRealName, isLoading };
 }

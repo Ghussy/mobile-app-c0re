@@ -9,6 +9,7 @@ import BottomSheet, {
 import { router } from "expo-router";
 import { supabase } from "@/lib/supabase";
 import Button from "./Button";
+import { cleanupLocalData } from "@/lib/utils/cleanup";
 
 type SettingsBottomSheetProps = {
   bottomSheetRef: React.RefObject<BottomSheet>;
@@ -17,18 +18,36 @@ type SettingsBottomSheetProps = {
 export function SettingsBottomSheet({
   bottomSheetRef,
 }: SettingsBottomSheetProps) {
-  const [showLogoutConfirm, setShowLogoutConfirm] = useState(false);
+  const [showDeleteConfirm, setShowDeleteConfirm] = useState(false);
 
   const handleLogout = async () => {
-    if (!showLogoutConfirm) {
-      setShowLogoutConfirm(true);
-      return;
-    }
     await supabase.auth.signOut();
   };
 
-  const cancelLogout = () => {
-    setShowLogoutConfirm(false);
+  const handleDeleteAccount = async () => {
+    if (!showDeleteConfirm) {
+      setShowDeleteConfirm(true);
+      return;
+    }
+
+    try {
+      // Delete the user on the server
+      const { error } = await supabase.functions.invoke("delete_user");
+      if (error) throw error;
+
+      // Clean up local data
+      await cleanupLocalData();
+
+      // Sign out
+      await supabase.auth.signOut();
+    } catch (error) {
+      console.error("Error deleting account:", error);
+      setShowDeleteConfirm(false); // Reset the confirmation state on error
+    }
+  };
+
+  const cancelDelete = () => {
+    setShowDeleteConfirm(false);
   };
 
   const navigateToSetGoal = () => {
@@ -84,18 +103,18 @@ export function SettingsBottomSheet({
       >
         <BottomSheetView style={styles.content}>
           <View style={styles.buttonContainer}>
-            {showLogoutConfirm ? (
+            {showDeleteConfirm ? (
               <>
                 <View style={styles.buttonWrapper}>
                   <Button
-                    onPress={handleLogout}
-                    buttonStyles={styles.logoutConfirmButton}
+                    onPress={handleDeleteAccount}
+                    buttonStyles={styles.deleteConfirmButton}
                   >
-                    Confirm Logout
+                    Confirm Delete Account
                   </Button>
                 </View>
                 <View style={styles.buttonWrapper}>
-                  <Button onPress={cancelLogout} variant="secondary">
+                  <Button onPress={cancelDelete} variant="secondary">
                     Cancel
                   </Button>
                 </View>
@@ -105,10 +124,15 @@ export function SettingsBottomSheet({
               <>
                 <View style={styles.buttonWrapper}>
                   <Button
-                    onPress={handleLogout}
-                    buttonStyles={styles.logoutButton}
-                    textStyles={styles.logoutButtonText}
+                    onPress={handleDeleteAccount}
+                    buttonStyles={styles.deleteButton}
+                    textStyles={styles.deleteButtonText}
                   >
+                    Delete Account
+                  </Button>
+                </View>
+                <View style={styles.buttonWrapper}>
+                  <Button onPress={handleLogout} variant="secondary">
                     Logout
                   </Button>
                 </View>
@@ -178,15 +202,15 @@ const styles = StyleSheet.create({
     backgroundColor: "#27272a",
     marginVertical: 8,
   },
-  logoutButton: {
+  deleteButton: {
     backgroundColor: "transparent",
     borderWidth: 1,
     borderColor: "#27272A",
   },
-  logoutButtonText: {
+  deleteButtonText: {
     color: "#FAFAFA",
   },
-  logoutConfirmButton: {
+  deleteConfirmButton: {
     backgroundColor: "#dc2626",
   },
 });

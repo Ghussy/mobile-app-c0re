@@ -15,10 +15,6 @@ export default function HomeScreen() {
         <View style={[styles.authContainer, { zIndex: 2 }]}>
           <Text style={styles.loginTitle}>Login</Text>
 
-          <CreateButton />
-
-          <Separator />
-
           <DiscordButton />
         </View>
         <Image
@@ -52,7 +48,8 @@ const styles = StyleSheet.create({
     position: "relative",
   },
   loginTitle: {
-    fontSize: 40,
+    fontSize: 35,
+    fontFamily: "Inter-medium",
     marginBottom: 25,
     color: "white",
   },

@@ -18,6 +18,7 @@ import { GradientCard } from "@/components/ui/GradientCard";
 import { useGymGoal } from "@/lib/hooks/useGymGoal";
 import BottomSheet, { BottomSheetView } from "@gorhom/bottom-sheet";
 import { SettingsBottomSheet } from "@/components/ui/SettingsBottomSheet";
+import DiscordIcon from "@/components/ui/icons/DiscordIcon";
 
 type LeaderboardEntry = {
   rank: number;
@@ -75,6 +76,7 @@ export default function LeaderboardScreen() {
       setTotalParticipants(data.length);
     } catch (err) {
       setError("An unexpected error occurred");
+      console.error(err);
     } finally {
       setIsLoading(false);
     }
@@ -192,7 +194,12 @@ export default function LeaderboardScreen() {
                     <View style={styles.userInfo}>
                       <Text style={styles.name}>{entry.name}</Text>
                       <View style={styles.discordContainer}>
-                        <Text style={styles.discordIcon}>🎮</Text>
+                        <DiscordIcon
+                          width={14}
+                          height={10}
+                          color="#a1a1aa"
+                          opacity={1}
+                        />
                         <Text style={styles.discord}>{entry.discord}</Text>
                       </View>
                     </View>
@@ -386,9 +393,6 @@ const styles = StyleSheet.create({
     flexDirection: "row",
     alignItems: "center",
     gap: 4,
-  },
-  discordIcon: {
-    fontSize: 12,
   },
   discord: {
     fontSize: 12,
