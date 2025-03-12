@@ -4,3 +4,4 @@ expo-env.d.ts
 lib/config.ts
 /android/
 /ios/
+/.env

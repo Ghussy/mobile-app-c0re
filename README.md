@@ -13,6 +13,10 @@ Run: `bunx expo prebuild`
 
 Register your application with [Transistorsoft](https://github.com/transistorsoft/react-native-background-geolocation?tab=readme-ov-file#large_blue_diamond-configure-your-license)
 
+# Building
+
+- Copy `.env.template` into `.env` and fill in the corresnponding credentials
+
 # Contributing
 
 Contributions are welcome, but please open an issue before making a PR.
