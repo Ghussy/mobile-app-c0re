@@ -55,7 +55,10 @@ export async function getRecentLocations(limit: number = 50): Promise<
 
 export interface Gym {
   name: string;
+  latitude: number;
+  longitude: number;
   builtin: boolean;
+  address?: string;
 }
 
 export async function enrollGym(
@@ -63,29 +66,33 @@ export async function enrollGym(
   latitude: number,
   longitude: number,
   builtin: boolean,
+  address?: string
 ): Promise<void> {
   await db.runAsync(
-    "INSERT INTO gyms (name, latitude, longitude, builtin) VALUES (?, ?, ?, ?)",
+    "INSERT INTO gyms (name, latitude, longitude, builtin, address) VALUES (?, ?, ?, ?, ?)",
     name,
     latitude,
     longitude,
     builtin ? 1 : 0,
+    address || null
   );
 }
 
 export async function unenrollGym(
   name: string,
-  builtin: boolean,
+  builtin: boolean
 ): Promise<void> {
   await db.runAsync(
     "DELETE FROM gyms WHERE name = ? AND builtin = ?",
     name,
-    builtin ? 1 : 0,
+    builtin ? 1 : 0
   );
 }
 
 export async function enrolledGyms(): Promise<Gym[]> {
-  const gyms = await db.getAllAsync("SELECT name, builtin FROM gyms");
+  const gyms = await db.getAllAsync(
+    "SELECT name, latitude, longitude, builtin, address FROM gyms"
+  );
 
   return gyms.map((gym) => ({
     ...(gym as any as Gym),

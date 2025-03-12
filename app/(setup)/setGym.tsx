@@ -5,6 +5,51 @@ import { LinearGradient } from "expo-linear-gradient";
 import Button from "@/components/ui/Button";
 import ToggleCard from "@/components/ui/toggle-card";
 import { enrollGym, unenrollGym, enrolledGyms, Gym } from "@/lib/sqlite";
+import { pickPlace } from "react-native-place-picker";
+import BackgroundGeolocation from "react-native-background-geolocation";
+
+async function addGym() {
+  const { coords } = await BackgroundGeolocation.getCurrentPosition({
+    persist: false,
+    samples: 1,
+  });
+
+  const result = await pickPlace({
+    presentationStyle: "fullscreen",
+
+    title: "Add Your Gym",
+    searchPlaceholder: "Search for your gym...",
+    color: "#27272a",
+    contrastColor: "#ffffff",
+    enableUserLocation: true,
+    enableGeocoding: true,
+    enableSearch: true,
+    enableLargeTitle: true,
+    initialCoordinates: {
+      latitude: coords.latitude,
+      longitude: coords.longitude,
+    },
+    rejectOnCancel: false,
+  });
+  if (result && result.address) {
+    console.log("Full place result:", JSON.stringify(result, null, 2));
+    console.log("Address object:", JSON.stringify(result.address, null, 2));
+
+    const gymName = result.address.name || result.address.streetName;
+    const gymAddress = result.address.streetName;
+
+    console.log("Using name:", gymName);
+    console.log("Using address:", gymAddress);
+
+    await enrollGym(
+      gymName,
+      result.coordinate.latitude,
+      result.coordinate.longitude,
+      false,
+      gymAddress
+    );
+  }
+}
 
 export default function SetGymScreen() {
   const router = useRouter();
@@ -17,7 +62,7 @@ export default function SetGymScreen() {
   function enrolledInBuiltinGym(name: string) {
     return (
       typeof selectedGyms.find(
-        (gym) => gym.name === name && gym.builtin === true,
+        (gym) => gym.name === name && gym.builtin === true
       ) !== "undefined"
     );
   }
@@ -25,7 +70,7 @@ export default function SetGymScreen() {
   const toggleGym = async (
     name: string,
     latitude: number,
-    longitude: number,
+    longitude: number
   ) => {
     if (enrolledInBuiltinGym(name)) {
       await unenrollGym(name, true);
@@ -77,7 +122,9 @@ export default function SetGymScreen() {
               icon="plus"
               variant="add"
               onToggle={() => {
-                /* Handle add gym */
+                addGym()
+                  .then(() => enrolledGyms())
+                  .then(setSelectedGyms);
               }}
             />
           </View>
