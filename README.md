@@ -15,7 +15,7 @@ Register your application with [Transistorsoft](https://github.com/transistorsof
 
 # Building
 
-- Copy `.env.template` into `.env` and fill in the corresnponding credentials
+- Copy `.env.template` into `.env` and fill in the corresponding credentials
 
 # Contributing
 
