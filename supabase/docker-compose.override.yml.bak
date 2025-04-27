@@ -1,0 +1,29 @@
+version: "3.8"
+services:
+  kong:
+    environment:
+      KONG_PROXY_LISTEN: "192.168.0.160:8000"
+      KONG_ADMIN_LISTEN: "192.168.0.160:8001"
+    ports:
+      - "192.168.0.160:54321:8000"
+      - "192.168.0.160:54320:8001"
+
+  studio:
+    ports:
+      - "192.168.0.160:54323:3000"
+
+  inbucket:
+    ports:
+      - "192.168.0.160:54324:9000"
+
+  db:
+    ports:
+      - "192.168.0.160:54322:5432"
+
+  storage:
+    environment:
+      ANON_KEY: "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZS1kZW1vIiwicm9sZSI6ImFub24iLCJleHAiOjE5ODM4MTI5OTZ9.CRXP1A7WOeoJeXxjNni43kdQwgnWNReilDMblYTn_I0"
+      SERVICE_KEY: "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZS1kZW1vIiwicm9sZSI6InNlcnZpY2Vfcm9sZSIsImV4cCI6MTk4MzgxMjk5Nn0.EGIM96RAZx35lJzdJsyH-qQwv8Hdp7fsn3W0YpN81IU"
+      PROJECT_REF: "supabase"
+      REGION: "local"
+      GLOBAL_S3_BUCKET: "supabase-storage"

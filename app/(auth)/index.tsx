@@ -2,10 +2,7 @@ import React from "react";
 import { View, Image, StyleSheet, SafeAreaView, Text } from "react-native";
 
 import DiscordButton from "@/components/ui/Login/DiscordButton";
-import CreateButton from "@/components/ui/Login/CreateAccountButton";
 import Logo from "@/components/ui/Login/Logo";
-
-import Separator from "@/components/ui/Login/Separate";
 
 export default function HomeScreen() {
   return (
@@ -14,7 +11,6 @@ export default function HomeScreen() {
         <Logo />
         <View style={[styles.authContainer, { zIndex: 2 }]}>
           <Text style={styles.loginTitle}>Login</Text>
-
           <DiscordButton />
         </View>
         <Image

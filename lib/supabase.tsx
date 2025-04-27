@@ -7,6 +7,15 @@ import { makeRedirectUri } from "expo-auth-session";
 import { getQueryParams } from "expo-auth-session/build/QueryParams";
 import { openAuthSessionAsync } from "expo-web-browser";
 
+// Auth configuration
+const AUTH_REDIRECT = __DEV__
+  ? "com.c0re.app://auth/callback"
+  : makeRedirectUri({ path: "(tabs)/leaderboard" });
+
+// Storage keys
+const ASYNC_STORAGE_GYM_GOAL_KEY = "@gym_goal";
+const ASYNC_STORAGE_REAL_NAME_KEY = "@real_name";
+
 interface AuthContextType {
   user: User | undefined;
   gymGoal: number | undefined;
@@ -24,11 +33,6 @@ const AuthContext = createContext<AuthContextType>({
   updateGymGoal: () => {},
   updateRealName: () => {},
 });
-
-const appRedirectUrl = makeRedirectUri({ path: "(tabs)/leaderboard" });
-
-const ASYNC_STORAGE_GYM_GOAL_KEY = "@gym_goal";
-const ASYNC_STORAGE_REAL_NAME_KEY = "@real_name";
 
 export function AuthProvider({ children }: React.PropsWithChildren) {
   const [user, setUser] = useState<User | undefined>(undefined);
@@ -132,9 +136,14 @@ export const useAuth = () => {
   return context;
 };
 
+// Create Supabase client
 export const supabase = createClient(
-  process.env.EXPO_PUBLIC_SUPABASE_URL!,
-  process.env.EXPO_PUBLIC_SUPABASE_ANON_KEY!,
+  __DEV__
+    ? "http://192.168.0.160:54321"
+    : process.env.EXPO_PUBLIC_SUPABASE_URL!,
+  __DEV__
+    ? "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZS1kZW1vIiwicm9sZSI6ImFub24iLCJleHAiOjE5ODM4MTI5OTZ9.CRXP1A7WOeoJeXxjNni43kdQwgnWNReilDMblYTn_I0"
+    : process.env.EXPO_PUBLIC_SUPABASE_ANON_KEY!,
   {
     auth: {
       storage: AsyncStorage,
@@ -145,33 +154,29 @@ export const supabase = createClient(
   }
 );
 
+// Discord OAuth sign-in
 export async function signInWithDiscord() {
   const { data, error } = await supabase.auth.signInWithOAuth({
     provider: "discord",
     options: {
-      redirectTo: appRedirectUrl,
+      redirectTo: AUTH_REDIRECT,
       skipBrowserRedirect: true,
-      scopes: "identify email",
+      scopes: "identify email guilds",
     },
   });
 
   if (error) throw error;
 
-  const authResult = await openAuthSessionAsync(data.url, appRedirectUrl, {
+  const authResult = await openAuthSessionAsync(data.url, AUTH_REDIRECT, {
     showInRecents: true,
+    preferEphemeralSession: true,
   });
 
-  if (authResult.type !== "success") {
-    throw new Error(
-      `Authentication ${authResult.type}: ${JSON.stringify(authResult)}`
-    );
-  }
+  if (authResult.type === "cancel") return;
+  if (authResult.type !== "success" || !authResult.url) return;
 
   const { params, errorCode } = getQueryParams(authResult.url);
   if (errorCode) throw new Error(errorCode);
-  if (!params.access_token || !params.refresh_token) {
-    throw new Error("Missing authentication tokens in response");
-  }
 
   const { error: sessionError } = await supabase.auth.setSession({
     access_token: params.access_token,

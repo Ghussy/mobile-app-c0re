@@ -6,3 +6,12 @@ lib/config.ts
 /android/
 /ios/
 .DS_Store
+
+# Environment variables
+.env.local
+.env.*.local
+!.env.example  # Allow this file to be committed
+
+# Supabase
+supabase/config.toml
+scripts/start-local.sh
