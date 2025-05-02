@@ -15,7 +15,7 @@ export default function PermissionScreen() {
 
   const handleContinue = () => {
     if (LocationEnabled && SensorEnabled) {
-      router.push("/(setup)/setGoal");
+      router.push("/(auth)/account-setup");
     }
   };
 
