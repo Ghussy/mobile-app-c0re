@@ -2,8 +2,6 @@
   "expo": {
     "name": "c0re",
     "slug": "c0re",
-    "name": "c0re",
-    "slug": "c0re",
     "version": "1.0.0",
     "orientation": "portrait",
     "icon": "./assets/icons/Any.png",
@@ -23,11 +21,23 @@
         "NSLocationAlwaysAndWhenInUseUsageDescription": "This app requires location in the background 🦍",
         "NSLocationWhenInUseUsageDescription": "This app requires location while in use 🦍",
         "NSMotionUsageDescription": "This app uses motion-detection to determine the motion-activity of the device (walking, vehicle, bicycle, etc) 🦍",
-        "UIBackgroundModes": ["location", "fetch", "processing", "audio"],
+        "UIBackgroundModes": [
+          "location",
+          "fetch",
+          "processing",
+          "audio",
+          "location",
+          "fetch",
+          "processing",
+          "audio"
+        ],
         "BGTaskSchedulerPermittedIdentifiers": [
           "com.transistorsoft.fetch",
+          "com.transistorsoft.customtask",
+          "com.transistorsoft.fetch",
           "com.transistorsoft.customtask"
-        ]
+        ],
+        "ITSAppUsesNonExemptEncryption": false
       }
     },
     "android": {
@@ -54,7 +64,10 @@
           "backgroundColor": "#000000"
         }
       ],
-      ["react-native-background-geolocation", {}],
+      [
+        "react-native-background-geolocation",
+        {}
+      ],
       "react-native-background-fetch",
       [
         "expo-gradle-ext-vars",
@@ -72,6 +85,9 @@
     "extra": {
       "router": {
         "origin": false
+      },
+      "eas": {
+        "projectId": "8de5227d-a700-4fd7-813f-5f6f00dc34dc"
       }
     },
     "owner": "ghuscroft"

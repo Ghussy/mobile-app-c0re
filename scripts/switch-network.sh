@@ -52,10 +52,10 @@ update_config() {
     echo "Updated configuration to use IP: $IP"
 }
 
-# Function to update Supabase URL in lib/supabase.tsx
+# Function to update Supabase URL in lib/supabaseClient.ts
 update_supabase_tsx() {
     local IP=$1
-    local FILE="lib/supabase.tsx"
+    local FILE="lib/supabaseClient.ts"
     
     echo "Updating Supabase URL in $FILE"
     if [ ! -f "$FILE" ]; then

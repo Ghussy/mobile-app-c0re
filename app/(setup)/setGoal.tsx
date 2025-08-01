@@ -7,43 +7,51 @@ import { useEffect } from "react";
 import Button from "@/components/ui/Button";
 import { AnimatedCount } from "@/components/ui/wheel-picker/animated-count/animated-count";
 import { DraggableSlider } from "@/components/ui/wheel-picker/draggable-slider";
-import { useAuth } from "@/lib/supabase";
-import { useGymGoal } from "@/lib/hooks/useGymGoal";
+import { streaks$, setStreakGoal } from "@/lib/legendState/streak";
+import { use$ } from "@legendapp/state/react";
 
 const LINES_AMOUNT = 7;
 
 export default function SetGoalScreen() {
   const router = useRouter();
+  const {
+    isEditing: isEditingParam,
+    activity_id: activityIdParam,
+    streak_id: streakIdParam,
+    current_goal: currentGoalParam,
+  } = useLocalSearchParams<{
+    isEditing?: string;
+    activity_id?: string;
+    streak_id?: string;
+    current_goal?: string;
+  }>();
+
   const { isEditing } = useLocalSearchParams<{ isEditing?: string }>();
-  const auth = useAuth();
-  const { gymGoal, setGymGoal, isLoading } = useGymGoal();
-
+  const streak_goal = use$(streaks$.streak_goal);
   const daySelection = useSharedValue(0);
-
   const indicatorColor = useSharedValue("#22c55e");
 
-  // Initialize daySelection with the user's current goal when in editing mode
+  const activityId = activityIdParam || undefined;
+  const streakId = streakIdParam || undefined;
+
   useEffect(() => {
-    if (isEditing && typeof gymGoal === "number") {
-      daySelection.value = gymGoal;
+    if (isEditing && typeof streak_goal === "number") {
+      daySelection.value = streak_goal;
     }
-  }, [isEditing, gymGoal]);
+  }, [isEditing, streak_goal]);
 
-  const handleContinue = async () => {
-    try {
-      await setGymGoal(daySelection.value);
+  const handleContinue = () => {
+    if (typeof streakId === "string") {
+      setStreakGoal(daySelection.value, streakId);
+    } else {
+      console.error("Cannot set streak goal: streakId is undefined.");
+      return;
+    }
 
-      if (isEditing) {
-        // If editing from settings, show a reminder or do your logic
-        // For now, we simply go back. Adjust as needed.
-        router.replace("/(tabs)/leaderboard");
-      } else {
-        // If in initial setup flow, continue to next step
-        router.push("/(setup)/setGym");
-      }
-    } catch (error) {
-      console.error("Failed to save goal:", error);
-      // You might want to show an error message to the user here
+    if (isEditing) {
+      router.replace("/(tabs)/dashboard");
+    } else {
+      router.push("/(setup)/setGym");
     }
   };
 
@@ -52,8 +60,8 @@ export default function SetGoalScreen() {
     ? "Keep in mind that editing your goal will reset your streak.\nHow many days per week do you want to work out?"
     : "How many days per week do you want to work out?";
 
-  if (typeof gymGoal === "number" && !isEditing) {
-    return <Redirect href="/(tabs)/leaderboard" />;
+  if (typeof streak_goal === "number" && !isEditing) {
+    return <Redirect href="/(tabs)/dashboard" />;
   }
 
   return (
@@ -96,7 +104,7 @@ export default function SetGoalScreen() {
                 minLineHeight={10}
                 indicatorColor={indicatorColor}
                 initialValue={
-                  isEditing && typeof gymGoal === "number" ? gymGoal : 0
+                  isEditing && typeof streak_goal === "number" ? streak_goal : 0
                 }
                 onProgressChange={(sliderProgress) => {
                   "worklet";
@@ -109,12 +117,7 @@ export default function SetGoalScreen() {
 
           {/* Footer */}
           <View style={styles.footer}>
-            <Button
-              onPress={handleContinue}
-              buttonStyles={styles.button}
-              loading={isLoading}
-              disabled={isLoading}
-            >
+            <Button onPress={handleContinue} buttonStyles={styles.button}>
               {isEditing ? "Save Changes" : "Continue"}
             </Button>
           </View>

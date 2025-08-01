@@ -1,4 +1,5 @@
-import React, { useCallback, useState } from "react";
+// SettingsBottomSheet.tsx
+import React, { useCallback, useState, useEffect } from "react";
 import { View, StyleSheet } from "react-native";
 import { GestureHandlerRootView } from "react-native-gesture-handler";
 import BottomSheet, {
@@ -6,74 +7,54 @@ import BottomSheet, {
   BottomSheetBackdrop,
   BottomSheetBackdropProps,
 } from "@gorhom/bottom-sheet";
+import { use$, observer } from "@legendapp/state/react"; // Import observer
+import { bottomSheetState$ } from "@/lib/legendState/bottomSheet"; // Your new state observable
+import Button from "./Button"; // Your custom Button component
+import { MenuItem } from "@/types/types"; // Your MenuItem type
+import { supabase } from "@/lib/supabaseClient"; // For direct actions like delete
 import { router } from "expo-router";
-import { supabase } from "@/lib/supabase";
-import Button from "./Button";
-import { cleanupLocalData } from "@/lib/utils/cleanup";
+
 
 type SettingsBottomSheetProps = {
   bottomSheetRef: React.RefObject<BottomSheet>;
 };
 
-export function SettingsBottomSheet({
+// Make the component an observer to react to bottomSheetState$ changes
+export const SettingsBottomSheet = observer(({
   bottomSheetRef,
-}: SettingsBottomSheetProps) {
-  const [showDeleteConfirm, setShowDeleteConfirm] = useState(false);
+}: SettingsBottomSheetProps) => {
+  const menuItems = use$(bottomSheetState$.menuItems);
+  const snapIndex = use$(bottomSheetState$.snapIndex);
+  const isOpen = use$(bottomSheetState$.isOpen);
 
-  const handleLogout = async () => {
-    await supabase.auth.signOut();
-  };
+  // State for two-step delete confirmation, specific to this component's instance
+  const [confirmingItem, setConfirmingItem] = useState<MenuItem | null>(null);
 
-  const handleDeleteAccount = async () => {
-    if (!showDeleteConfirm) {
-      setShowDeleteConfirm(true);
-      return;
+  useEffect(() => {
+    if (isOpen) {
+      bottomSheetRef.current?.snapToIndex(snapIndex);
+    } else {
+      bottomSheetRef.current?.close();
+      setConfirmingItem(null); // Reset confirmation when sheet closes
     }
+  }, [isOpen, snapIndex, bottomSheetRef]);
 
-    try {
-      // Delete the user on the server
-      const { error } = await supabase.functions.invoke("delete_user");
-      if (error) throw error;
-
-      // Clean up local data
-      await cleanupLocalData();
-
-      // Sign out
-      await supabase.auth.signOut();
-    } catch (error) {
-      console.error("Error deleting account:", error);
-      setShowDeleteConfirm(false); // Reset the confirmation state on error
+  const handleItemPress = (item: MenuItem) => {
+    if (item.isConfirming && !confirmingItem) {
+      setConfirmingItem(item);
+    } else if (item.onConfirm && confirmingItem?.label === item.label) {
+      item.onConfirm();
+      setConfirmingItem(null); // Reset after confirm
+      bottomSheetState$.isOpen.set(false); // Close sheet
+    } else if (item.onPress) {
+      item.onPress();
+      // No need to set isOpen to false here if onPress navigates or explicitly closes
     }
   };
 
-  const cancelDelete = () => {
-    setShowDeleteConfirm(false);
-  };
-
-  const navigateToSetGoal = () => {
-    router.push({
-      pathname: "/(setup)/setGoal",
-      params: { isEditing: "true" },
-    });
-  };
-
-  const navigateToSetGym = () => {
-    router.push({
-      pathname: "/(setup)/setGym",
-    });
-  };
-
-  const navigateToSetName = () => {
-    router.push({
-      pathname: "/(setup)/setName",
-      params: { isEditing: "true" },
-    });
-  };
-
-  const navigateToHistory = () => {
-    router.push({
-      pathname: "/(tabs)/history",
-    });
+  const handleCancelConfirm = () => {
+    confirmingItem?.onCancelConfirm?.();
+    setConfirmingItem(null);
   };
 
   const renderBackdrop = useCallback(
@@ -84,87 +65,130 @@ export function SettingsBottomSheet({
         appearsOnIndex={0}
         opacity={0.5}
         style={[props.style, { backgroundColor: "rgba(0, 0, 0, 0.5)" }]}
-        pressBehavior="close"
+        pressBehavior="close" // Or "none" if you want to control closing explicitly
+        onPress={() => bottomSheetState$.isOpen.set(false)} // Close when backdrop is pressed
       />
     ),
     []
   );
 
+  const handleSheetChanges = useCallback((index: number) => {
+    // Update Legend-State if sheet is closed by swipe or backdrop
+    if (index === -1 && bottomSheetState$.isOpen.peek()) {
+      bottomSheetState$.isOpen.set(false);
+      setConfirmingItem(null);
+    }
+    bottomSheetState$.snapIndex.set(index);
+  }, []);
+
+
+  // Special handling for global settings delete account, as it was in your original code
+  const globalContext = use$(bottomSheetState$.contextType);
+  const [showGlobalDeleteConfirm, setShowGlobalDeleteConfirm] = useState(false);
+
+  useEffect(() => {
+    // Reset global delete confirm if context changes or sheet closes
+    if (globalContext !== 'globalSettings' || !isOpen) {
+        setShowGlobalDeleteConfirm(false);
+    }
+  }, [globalContext, isOpen]);
+
+  const handleDeleteAccountGlobal = async () => {
+    if (!showGlobalDeleteConfirm) {
+      setShowGlobalDeleteConfirm(true);
+      return;
+    }
+    try {
+      const { error } = await supabase.functions.invoke("delete_user");
+      if (error) throw error;
+      // TODO: add delete account logic here
+      await supabase.auth.signOut();
+      bottomSheetState$.isOpen.set(false); // Close sheet
+    } catch (error) {
+      console.error("Error deleting account:", error);
+    } finally {
+        setShowGlobalDeleteConfirm(false);
+    }
+  };
+  const cancelDeleteAccountGlobal = () => setShowGlobalDeleteConfirm(false);
+
+
+  // Determine which set of items to render
+  let itemsToRender = menuItems;
+
+  if (globalContext === 'globalSettings' && menuItems.some(item => item.label === "Delete Account")) {
+      // Rebuild menu items for global settings to include confirmation logic for delete
+      const originalDeleteAccountItem = menuItems.find(item => item.label === "Delete Account");
+      const otherItems = menuItems.filter(item => item.label !== "Delete Account");
+
+      itemsToRender = showGlobalDeleteConfirm
+        ? [
+            { label: "Confirm Delete Account", onPress: handleDeleteAccountGlobal, variant: 'destructive' },
+            { label: "Cancel", onPress: cancelDeleteAccountGlobal, variant: 'secondary' },
+            ...otherItems, // Add other items after confirm/cancel for delete
+          ]
+        : [
+            { ...originalDeleteAccountItem!, onPress: handleDeleteAccountGlobal }, // Override onPress
+            ...otherItems,
+          ];
+  }
+
+
   return (
-    <GestureHandlerRootView style={styles.container}>
+    // GestureHandlerRootView might be needed at a higher level in your app (e.g., RootLayout)
+    // If it's already there, you might not need it here.
+    // <GestureHandlerRootView style={styles.container}>
       <BottomSheet
         ref={bottomSheetRef}
-        index={-1}
-        snapPoints={[450]}
+        index={snapIndex} // Controlled by Legend-State
+        snapPoints={[450]} // Or make this dynamic based on content
         enablePanDownToClose
+        onChange={handleSheetChanges} // Sync internal state with Legend-State
         backdropComponent={renderBackdrop}
         backgroundStyle={styles.bottomSheetBackground}
         handleIndicatorStyle={styles.handleIndicator}
       >
         <BottomSheetView style={styles.content}>
           <View style={styles.buttonContainer}>
-            {showDeleteConfirm ? (
-              <>
-                <View style={styles.buttonWrapper}>
-                  <Button
-                    onPress={handleDeleteAccount}
-                    buttonStyles={styles.deleteConfirmButton}
-                  >
-                    Confirm Delete Account
-                  </Button>
-                </View>
-                <View style={styles.buttonWrapper}>
-                  <Button onPress={cancelDelete} variant="secondary">
-                    Cancel
-                  </Button>
-                </View>
-                <View style={styles.divider} />
-              </>
-            ) : (
-              <>
-                <View style={styles.buttonWrapper}>
-                  <Button
-                    onPress={handleDeleteAccount}
-                    buttonStyles={styles.deleteButton}
-                    textStyles={styles.deleteButtonText}
-                  >
-                    Delete Account
-                  </Button>
-                </View>
-                <View style={styles.buttonWrapper}>
-                  <Button onPress={handleLogout} variant="secondary">
-                    Logout
-                  </Button>
-                </View>
-                <View style={styles.divider} />
-              </>
-            )}
-            <View style={styles.buttonWrapper}>
-              <Button onPress={navigateToSetGym} variant="secondary">
-                Edit Gym Locations
-              </Button>
-            </View>
-            <View style={styles.buttonWrapper}>
-              <Button onPress={navigateToSetGoal} variant="secondary">
-                Update Goal
-              </Button>
-            </View>
-            <View style={styles.buttonWrapper}>
-              <Button onPress={navigateToSetName} variant="secondary">
-                Update Name
-              </Button>
-            </View>
-            <View style={styles.buttonWrapper}>
-              <Button onPress={navigateToHistory} variant="secondary">
-                View History
-              </Button>
-            </View>
+            {itemsToRender.map((item, index) => (
+              <React.Fragment key={item.label + index}>
+                {item.label === '---divider---' ? (
+                    <View style={styles.divider} />
+                ) : (
+                    <View style={styles.buttonWrapper}>
+                    <Button
+                        onPress={() => handleItemPress(item)}
+                        // variant={item.variant || 'secondary'} // Default to secondary if not specified
+                        buttonStyles={
+                        item.variant === 'destructive' && !confirmingItem // Initial destructive button style
+                            ? styles.deleteButton
+                            : confirmingItem?.label === item.label && item.isConfirming // Active confirm button style
+                            ? styles.deleteConfirmButton
+                            : undefined
+                        }
+                        textStyles={
+                        item.variant === 'destructive' && !confirmingItem
+                            ? styles.deleteButtonText
+                            : undefined
+                        }
+                    >
+                        {confirmingItem?.label === item.label && item.isConfirming
+                        ? item.confirmLabel || `Confirm ${item.label}`
+                        : item.label}
+                    </Button>
+                    </View>
+                )}
+                 {/* Add divider logic if needed, e.g. after certain items */}
+              </React.Fragment>
+            ))}
           </View>
         </BottomSheetView>
       </BottomSheet>
-    </GestureHandlerRootView>
+    // </GestureHandlerRootView>
   );
-}
+});
+
+// ... (styles remain the same)
 
 const styles = StyleSheet.create({
   container: {

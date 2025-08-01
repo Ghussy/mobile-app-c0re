@@ -1,12 +1,13 @@
-import { View, StyleSheet, ViewStyle } from "react-native";
+import { View, StyleSheet, ViewStyle, Pressable } from "react-native";
 import { LinearGradient } from "expo-linear-gradient";
 import React from "react";
 
 interface GradientCardProps {
   children: React.ReactNode;
   style?: ViewStyle;
-  gradientColors?: string[];
-  gradientLocations?: number[];
+  gradientColors?: readonly [string, string, ...string[]];
+  gradientLocations?: readonly [number, number, ...number[]];
+  onPress?: () => void;
 }
 
 export const GradientCard: React.FC<GradientCardProps> = ({
@@ -16,11 +17,12 @@ export const GradientCard: React.FC<GradientCardProps> = ({
     "rgba(255, 255, 255, 0.2)",
     "rgba(255, 255, 255, 0.05)",
     "rgba(255, 255, 255, 0.02)",
-  ],
-  gradientLocations = [0, 0.5, 1],
+  ] as const,
+  gradientLocations = [0, 0.5, 1] as const,
+  onPress,
 }) => {
   return (
-    <View style={[styles.container, style]}>
+    <Pressable onPress={onPress} style={[styles.container, style]}>
       <LinearGradient
         colors={gradientColors}
         style={styles.gradientBorder}
@@ -29,7 +31,7 @@ export const GradientCard: React.FC<GradientCardProps> = ({
         locations={gradientLocations}
       />
       <View style={styles.content}>{children}</View>
-    </View>
+    </Pressable>
   );
 };
 
@@ -51,6 +53,6 @@ const styles = StyleSheet.create({
     backgroundColor: "rgba(9, 9, 11, 0.7)",
     borderRadius: 13,
     padding: 20,
-    margin: 1, // Creates space for the gradient border
+    margin: 2, // Creates space for the gradient border
   },
 });

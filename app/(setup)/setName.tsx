@@ -10,36 +10,32 @@ import {
 import Button from "@/components/ui/Button";
 import { useRouter, useLocalSearchParams, Redirect } from "expo-router";
 import DiscordIcon from "@/components/ui/icons/DiscordIcon";
-import { useAuth } from "@/lib/supabase";
-import { useRealName } from "@/lib/hooks/useRealName";
+import { observer, use$ } from "@legendapp/state/react";
+import { session$ } from "@/lib/legendState/session";
+import { setRealName } from "@/lib/legendState";
 
-export default function SetNameScreen() {
-  const [name, setName] = useState("");
+// observer → tracks every `.get()` / use$ inside automatically
+export default observer(function SetNameScreen() {
+  const [localName, setLocalName] = useState("");
   const [imageError, setImageError] = useState(false);
+  const [isLoading, setIsLoading] = useState(false);
   const router = useRouter();
-  const { user } = useAuth();
-  const { setRealName, isLoading } = useRealName();
   const { isEditing } = useLocalSearchParams<{ isEditing?: string }>();
+  const user = use$(session$.user); // reactive
 
-  // Redirect to auth if no user
   if (!user) {
     console.log("No user found, redirecting to auth");
     return <Redirect href="/(auth)" />;
   }
 
-  const discordData = user?.user_metadata;
+  const discordData = user.user_metadata;
   const avatarUrl = discordData?.avatar_url;
 
   const handleContinue = async () => {
     try {
-      const { error } = await setRealName(name);
+      setIsLoading(true);
+      setRealName(localName);
 
-      if (error) {
-        console.error("Detailed error:", error);
-        throw error;
-      }
-
-      console.log("Name set successfully, redirecting...");
       if (isEditing) {
         router.back();
       } else {
@@ -47,6 +43,8 @@ export default function SetNameScreen() {
       }
     } catch (error) {
       console.error("Error saving name:", error);
+    } finally {
+      setIsLoading(false);
     }
   };
 
@@ -83,14 +81,14 @@ export default function SetNameScreen() {
 
             <TextInput
               style={styles.input}
-              onChangeText={setName}
-              value={name}
+              onChangeText={setLocalName}
+              value={localName}
               placeholder="Enter your name"
               placeholderTextColor="#A1A1AA"
             />
 
             <Button
-              disabled={name.length < 1 || isLoading}
+              disabled={localName.length < 1 || isLoading}
               onPress={handleContinue}
               loading={isLoading}
             >
@@ -106,7 +104,7 @@ export default function SetNameScreen() {
       </View>
     </KeyboardAvoidingView>
   );
-}
+});
 
 const styles = StyleSheet.create({
   container: {

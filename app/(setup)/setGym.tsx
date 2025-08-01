@@ -1,50 +1,27 @@
-import React, { useEffect } from "react";
+import React from "react";
 import { SafeAreaView, View, Text, StyleSheet } from "react-native";
-import { useRouter, useLocalSearchParams, Redirect } from "expo-router";
+import { useRouter, useLocalSearchParams } from "expo-router";
 import { LinearGradient } from "expo-linear-gradient";
 import Button from "@/components/ui/Button";
 import ToggleCard from "@/components/ui/toggle-card";
 import { pickPlace } from "react-native-place-picker";
 import { getCurrentLocation } from "@/providers/LocationReporter";
-import { enrollGym, unenrollGym, enrolledGyms, Gym } from "@/lib/sqlite";
+import { locations$, saveLocation } from "@/lib/legendState/locations";
+import { use$ } from "@legendapp/state/react";
 
 export default function SetGymScreen() {
   const router = useRouter();
   const { isEditing } = useLocalSearchParams<{ isEditing?: string }>();
-  const [selectedGyms, setSelectedGyms] = React.useState<Gym[]>([]);
+  const locations = use$(locations$);
+  const locationList = Object.values(locations || {});
 
-  useEffect(() => {
-    enrolledGyms().then(setSelectedGyms);
-  }, []);
-
-  function enrolledInGym(name: string, builtin: boolean = true) {
-    return (
-      typeof selectedGyms.find(
-        (gym) => gym.name === name && gym.builtin === builtin
-      ) !== "undefined"
-    );
-  }
-
-  const toggleGym = async (
-    name: string,
-    latitude: number,
-    longitude: number,
-    builtin: boolean = true
-  ) => {
-    if (enrolledInGym(name, builtin)) {
-      await unenrollGym(name, builtin);
-    } else {
-      await enrollGym(name, latitude, longitude, builtin);
-    }
-
-    setSelectedGyms(await enrolledGyms());
-  };
+  console.log("locations", locations);
 
   const handleContinue = () => {
     if (isEditing) {
-      router.replace("/(tabs)/leaderboard");
+      router.replace("/(tabs)/dashboard");
     } else {
-      router.push("/(tabs)/leaderboard");
+      router.push("/(tabs)/dashboard");
     }
   };
 
@@ -71,43 +48,26 @@ export default function SetGymScreen() {
 
           {/* Main Content */}
           <View style={styles.mainContent}>
-            <ToggleCard
-              name="Vasa"
-              icon="navigation"
-              isSelected={enrolledInGym("vasa")}
-              onToggle={() => toggleGym("vasa", 0, 0)}
-            />
-            <ToggleCard
-              name="EOS"
-              icon="navigation"
-              isSelected={enrolledInGym("eos")}
-              onToggle={() => toggleGym("eos", 0, 0)}
-            />
-            <ToggleCard
-              name="Planet Fitness"
-              icon="navigation"
-              isSelected={enrolledInGym("planet fitness")}
-              onToggle={() => toggleGym("planet fitness", 0, 0)}
-            />
-
             {/* Custom Selected Gyms */}
-            {selectedGyms
-              .filter((gym) => !gym.builtin)
-              .map((gym) => (
+            {locationList
+              .filter(
+                (location) => location && location.id && !location.deleted
+              )
+              .map((location) => (
                 <ToggleCard
-                  key={gym.name}
-                  name={gym.name}
-                  subtitle={gym.address || `${gym.latitude}, ${gym.longitude}`}
+                  key={location.id}
+                  name={location.name}
+                  subtitle={
+                    location.address ||
+                    `${location.latitude}, ${location.longitude}`
+                  }
                   icon="navigation"
                   variant="delete"
                   onDelete={async () => {
-                    await unenrollGym(gym.name, false);
-                    setSelectedGyms(await enrolledGyms());
+                    locations$[location.id].delete();
                   }}
                   isSelected={true}
-                  onToggle={() =>
-                    toggleGym(gym.name, gym.latitude, gym.longitude, false)
-                  }
+                  onToggle={() => locations$[location.id].delete()}
                 />
               ))}
 
@@ -153,14 +113,20 @@ export default function SetGymScreen() {
                         console.log("Using name:", gymName);
                         console.log("Using address:", gymAddress);
 
-                        await enrollGym(
-                          gymName,
-                          result.coordinate.latitude,
-                          result.coordinate.longitude,
-                          false,
-                          gymAddress
-                        );
-                        setSelectedGyms(await enrolledGyms());
+                        if (!gymName) {
+                          console.warn(
+                            "No gym name found from place picker result. Not saving."
+                          );
+                        } else {
+                          saveLocation({
+                            name: gymName,
+                            latitude: result.coordinate.latitude,
+                            longitude: result.coordinate.longitude,
+                            address: gymAddress,
+                            radius_m: 100,
+                            default_activity_id: null, // Will be set later when user selects a default activity
+                          });
+                        }
                       }
                     })
                     .catch((error) => {
@@ -180,7 +146,7 @@ export default function SetGymScreen() {
             <Button
               onPress={handleContinue}
               buttonStyles={styles.button}
-              disabled={selectedGyms.length === 0}
+              disabled={locationList.filter((l) => !l.deleted).length === 0}
             >
               {isEditing ? "Save Changes" : "Continue"}
             </Button>

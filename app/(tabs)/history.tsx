@@ -11,7 +11,6 @@ import {
   Button,
   RefreshControl,
 } from "react-native";
-import { getRecentLocations } from "@/lib/sqlite";
 import { MapPin, Settings } from "lucide-react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
 import BackgroundGeolocation from "react-native-background-geolocation";

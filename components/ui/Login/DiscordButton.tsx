@@ -1,7 +1,7 @@
 import React from "react";
 import { TouchableOpacity, Text, Image, StyleSheet } from "react-native";
 
-import { signInWithDiscord } from "@/lib/supabase";
+import { signInWithDiscord } from "@/lib/auth/AuthProvider";
 
 const Button = () => {
   const signIn = async () => {
