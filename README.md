@@ -6,7 +6,7 @@ Guide self-discovery & growth through the unknown
 
 Install dependencies: `bun i`
 
-Run: `bunx expo prebuild`
+Run: `bun x expo prebuild`
 
 - `bun android`
 - `bun ios`
