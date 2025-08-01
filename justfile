@@ -1,5 +1,6 @@
 export PATH := "./node_modules/.bin:" + env_var('PATH')
 set script-interpreter := ['bun', 'run']
+set shell := ['bun', 'exec']
 set unstable
 
 [script]
