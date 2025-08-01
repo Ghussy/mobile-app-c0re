@@ -13,6 +13,8 @@ Run: `bun x expo prebuild`
 
 Register your application with [Transistorsoft](https://github.com/transistorsoft/react-native-background-geolocation?tab=readme-ov-file#large_blue_diamond-configure-your-license)
 
+Create a Google Maps API Key with the bundle identifier and SHA1 fingerprint of your app
+
 # Contributing
 
 Contributions are welcome, but please open an issue before making a PR.
