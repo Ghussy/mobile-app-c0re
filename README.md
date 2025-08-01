@@ -6,10 +6,8 @@ Guide self-discovery & growth through the unknown
 
 Install dependencies: `bun i`
 
-Run: `bun x expo prebuild`
-
-- `bun android`
-- `bun ios`
+- `bun just run android`
+- `bun just run ios`
 
 Register your application with [Transistorsoft](https://github.com/transistorsoft/react-native-background-geolocation?tab=readme-ov-file#large_blue_diamond-configure-your-license)
 

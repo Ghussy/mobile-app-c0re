@@ -3,13 +3,7 @@
     "main": "expo-router/entry",
     "version": "1.0.0",
     "scripts": {
-        "start": "expo start",
-        "reset-project": "node ./scripts/reset-project.js",
-        "android": "expo run:android",
-        "ios": "expo run:ios",
-        "web": "expo start --web",
-        "test": "jest --watchAll",
-        "lint": "expo lint"
+        "just": "just"
     },
     "jest": {
         "preset": "jest-expo"
@@ -41,6 +35,7 @@
         "expo-symbols": "~0.2.0",
         "expo-system-ui": "~4.0.9",
         "expo-web-browser": "^14.0.2",
+        "just-install": "^2.0.2",
         "lucide-react-native": "^0.475.0",
         "react": "18.3.1",
         "react-dom": "18.3.1",
@@ -61,6 +56,7 @@
     },
     "devDependencies": {
         "@babel/core": "^7.25.2",
+        "@inquirer/prompts": "^7.8.0",
         "@react-native-community/cli": "latest",
         "@types/color": "^4.2.0",
         "@types/jest": "^29.5.12",
