@@ -3,6 +3,9 @@ set script-interpreter := ['bun', 'run']
 set shell := ['bun', 'exec']
 set unstable
 
+default:
+  just --list
+
 [script]
 env: install
     import { input } from '@inquirer/prompts';
