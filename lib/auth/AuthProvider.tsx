@@ -5,10 +5,7 @@ import { getQueryParams } from "expo-auth-session/build/QueryParams";
 import { openAuthSessionAsync } from "expo-web-browser";
 import { session$ } from "../legendState/session";
 
-// Auth configuration
-const AUTH_REDIRECT = __DEV__
-  ? "com.c0re.app://auth/callback"
-  : makeRedirectUri({ path: "(tabs)/leaderboard" });
+const AUTH_REDIRECT = makeRedirectUri({ path: "(tabs)/dashboard" });
 
 const AuthContext = createContext<{ isInitialized: boolean }>({
   isInitialized: false,
@@ -25,8 +22,6 @@ export function AuthProvider({ children }: React.PropsWithChildren) {
         const {
           data: { session },
         } = await supabase.auth.getSession();
-
-        //console.log("AuthProvider: session", session);
 
         if (isMounted) {
           session$.user.set(session?.user ?? null);
@@ -47,7 +42,6 @@ export function AuthProvider({ children }: React.PropsWithChildren) {
     } = supabase.auth.onAuthStateChange((_event, session) => {
       if (isMounted) {
         session$.user.set(session?.user ?? null);
-        //console.log("AuthProvider: onAuthStateChange, user", session?.user);
       }
     });
 
