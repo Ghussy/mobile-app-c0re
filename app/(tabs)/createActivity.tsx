@@ -14,6 +14,8 @@ import { useRouter, Redirect } from "expo-router";
 import { observer, use$ } from "@legendapp/state/react";
 import { session$ } from "@/lib/legendState/session";
 import { Ionicons } from "@expo/vector-icons";
+import { locations$ } from "@/lib/legendState/locations";
+import { createActivity } from "@/lib/legendState/activity";
 
 // Mock locations for now
 const mockLocations = [
@@ -25,8 +27,8 @@ const mockLocations = [
 export default observer(function CreateActivityScreen() {
   const [isLoading, setIsLoading] = useState(false);
   const [activityName, setActivityName] = useState("");
-  const [locations, setLocations] = useState(mockLocations);
   const router = useRouter();
+  const locations = use$(locations$);
   const user = use$(session$.user); // reactive
 
   if (!user) {
@@ -34,12 +36,8 @@ export default observer(function CreateActivityScreen() {
     return <Redirect href="/(auth)" />;
   }
 
-  const handleDeleteLocation = (id: string) => {
-    setLocations((prev) => prev.filter((loc) => loc.id !== id));
-  };
-
   const handleContinue = async () => {
-    // TODO: handle activity creation
+    createActivity({ name: activityName });
   };
 
   return (
@@ -48,7 +46,6 @@ export default observer(function CreateActivityScreen() {
         <View style={[styles.section, { zIndex: 2 }]}>
           <Text style={styles.title}>Create an activity</Text>
 
-          {/* Activity Name Input */}
           <TextInput
             style={styles.input}
             onChangeText={setActivityName}
@@ -57,26 +54,21 @@ export default observer(function CreateActivityScreen() {
             placeholderTextColor="#A1A1AA"
           />
 
-          {/* Locations List */}
           <Text style={styles.locationsLabel}>
             <Ionicons name="navigate" size={18} color="#fff" /> Locations
           </Text>
           <FlatList
-            data={locations}
+            data={Object.values(locations)}
             keyExtractor={(item) => item.id}
             renderItem={({ item }) => (
               <View style={styles.locationCard}>
                 <Text style={styles.locationName}>{item.name}</Text>
-                <TouchableOpacity onPress={() => handleDeleteLocation(item.id)}>
-                  <Ionicons name="trash" size={24} color="#FF2D55" />
-                </TouchableOpacity>
               </View>
             )}
             style={{ width: "100%" }}
             contentContainerStyle={{ gap: 12 }}
           />
 
-          {/* Continue Button */}
           <View style={styles.continueButton}>
             <Button
               disabled={!activityName || locations.length === 0 || isLoading}
