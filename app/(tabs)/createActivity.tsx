@@ -22,16 +22,9 @@ const mockLocations = [
   { id: "3", name: "Planet Fitness" },
 ];
 
-const typeOptions = [
-  { key: "core", label: "Core", icon: "add-circle", color: "#7FFF00" },
-  { key: "body", label: "Body", icon: "remove-circle", color: "#00BFFF" },
-  { key: "mind", label: "Mind", icon: "radio-button-on", color: "#FF69B4" },
-];
-
 export default observer(function CreateActivityScreen() {
   const [isLoading, setIsLoading] = useState(false);
   const [activityName, setActivityName] = useState("");
-  const [activityType, setActivityType] = useState<string | null>(null);
   const [locations, setLocations] = useState(mockLocations);
   const router = useRouter();
   const user = use$(session$.user); // reactive
@@ -64,35 +57,6 @@ export default observer(function CreateActivityScreen() {
             placeholderTextColor="#A1A1AA"
           />
 
-          {/* Type Selection */}
-          <Text style={styles.typeLabel}>Type</Text>
-          <View style={styles.typeRow}>
-            {typeOptions.map((type) => (
-              <TouchableOpacity
-                key={type.key}
-                style={[
-                  styles.typeCard,
-                  activityType === type.key && {
-                    borderColor: type.color,
-                    shadowColor: type.color,
-                    shadowOpacity: 0.5,
-                    shadowRadius: 10,
-                  },
-                ]}
-                onPress={() => setActivityType(type.key)}
-                activeOpacity={0.8}
-              >
-                <Text style={styles.typeText}>{type.label}</Text>
-                <Ionicons
-                  name={type.icon as any}
-                  size={32}
-                  color={activityType === type.key ? type.color : "#A1A1AA"}
-                  style={{ marginTop: 8 }}
-                />
-              </TouchableOpacity>
-            ))}
-          </View>
-
           {/* Locations List */}
           <Text style={styles.locationsLabel}>
             <Ionicons name="navigate" size={18} color="#fff" /> Locations
@@ -115,12 +79,7 @@ export default observer(function CreateActivityScreen() {
           {/* Continue Button */}
           <View style={styles.continueButton}>
             <Button
-              disabled={
-                !activityName ||
-                !activityType ||
-                locations.length === 0 ||
-                isLoading
-              }
+              disabled={!activityName || locations.length === 0 || isLoading}
               onPress={handleContinue}
               loading={isLoading}
             >
